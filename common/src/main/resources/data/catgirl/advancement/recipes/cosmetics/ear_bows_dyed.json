@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "catgirl:ear_bows_dyed"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_ear_bows": {
+      "conditions": {
+        "items": [
+          {
+            "items": "catgirl:ear_bows"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ear_bows"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "catgirl:ear_bows_dyed"
+    ]
+  }
+}

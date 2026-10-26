@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "catgirl:velvet_choker_dyed"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_velvet_choker": {
+      "conditions": {
+        "items": [
+          {
+            "items": "catgirl:velvet_choker"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_velvet_choker"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "catgirl:velvet_choker_dyed"
+    ]
+  }
+}
