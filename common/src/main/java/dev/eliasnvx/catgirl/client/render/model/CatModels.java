@@ -21,7 +21,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.equipment.Equippable;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static dev.eliasnvx.catgirl.cosmetic.Coat.Part.INNER;
 import static dev.eliasnvx.catgirl.cosmetic.Coat.Part.MAIN;
@@ -62,23 +64,40 @@ public final class CatModels {
         return new ModelLayerLocation(CatgirlMod.id(name), "main");
     }
 
+    /** Every cosmetic layer and its definition; registered with the game, and walked by the Blockbench starter export. */
+    public static Map<ModelLayerLocation, Supplier<LayerDefinition>> definitions() {
+        Map<ModelLayerLocation, Supplier<LayerDefinition>> layers = new LinkedHashMap<>();
+        layers.put(EARS, CatModels::ears);
+        layers.put(TAIL, CatModels::tail);
+        layers.put(PAW_GLOVES, () -> hands(false, false));
+        layers.put(PAW_GLOVES_SLIM, () -> hands(false, true));
+        layers.put(PAW_MITTENS, () -> hands(true, false));
+        layers.put(PAW_MITTENS_SLIM, () -> hands(true, true));
+        layers.put(PAW_SLIPPERS, CatModels::slippers);
+        layers.put(LEG_WARMERS, CatModels::legWarmers);
+        layers.put(BELL_COLLAR, CatModels::bellCollar);
+        layers.put(VELVET_CHOKER, CatModels::velvetChoker);
+        layers.put(NECK_RIBBON, CatModels::neckRibbon);
+        layers.put(WHISKERS, CatModels::whiskers);
+        layers.put(BLUSH, CatModels::blush);
+        layers.put(CAT_EAR_HEADPHONES, CatModels::headphones);
+        layers.put(EAR_BOWS, CatModels::earBows);
+        layers.put(BELL_HEADBAND, CatModels::bellHeadband);
+        return layers;
+    }
+
     public static void registerLayers() {
-        EntityModelLayerRegistry.register(EARS, CatModels::ears);
-        EntityModelLayerRegistry.register(TAIL, CatModels::tail);
-        EntityModelLayerRegistry.register(PAW_GLOVES, () -> hands(false, false));
-        EntityModelLayerRegistry.register(PAW_GLOVES_SLIM, () -> hands(false, true));
-        EntityModelLayerRegistry.register(PAW_MITTENS, () -> hands(true, false));
-        EntityModelLayerRegistry.register(PAW_MITTENS_SLIM, () -> hands(true, true));
-        EntityModelLayerRegistry.register(PAW_SLIPPERS, CatModels::slippers);
-        EntityModelLayerRegistry.register(LEG_WARMERS, CatModels::legWarmers);
-        EntityModelLayerRegistry.register(BELL_COLLAR, CatModels::bellCollar);
-        EntityModelLayerRegistry.register(VELVET_CHOKER, CatModels::velvetChoker);
-        EntityModelLayerRegistry.register(NECK_RIBBON, CatModels::neckRibbon);
-        EntityModelLayerRegistry.register(WHISKERS, CatModels::whiskers);
-        EntityModelLayerRegistry.register(BLUSH, CatModels::blush);
-        EntityModelLayerRegistry.register(CAT_EAR_HEADPHONES, CatModels::headphones);
-        EntityModelLayerRegistry.register(EAR_BOWS, CatModels::earBows);
-        EntityModelLayerRegistry.register(BELL_HEADBAND, CatModels::bellHeadband);
+        definitions().forEach(EntityModelLayerRegistry::register);
+    }
+
+    /**
+     * Puts a freshly baked layer into its motionless pose (the tail's droop and curl live in setupAnim, not in the
+     * layer). Geo models are modelled in this pose and get the code model's motion as an offset from it.
+     */
+    public static void applyRestPose(ModelLayerLocation layer, ModelPart root) {
+        if (layer.equals(TAIL)) {
+            TailModel.applyRestPose(root);
+        }
     }
 
     /** Whether a baked layer has any boxes of this part (skips submitting empty models). */
@@ -627,6 +646,16 @@ public final class CatModels {
             for (int i = 0; i < TAIL_SEGMENTS; i++) {
                 segment = segment.getChild("segment" + i);
                 segments[i] = segment;
+            }
+        }
+
+        /** The tail hanging still: the first segment droops, the rest curl a little. */
+        public static void applyRestPose(ModelPart root) {
+            ModelPart segment = root.getChild("body");
+            for (int i = 0; i < TAIL_SEGMENTS; i++) {
+                segment = segment.getChild("segment" + i);
+                segment.xRot = i == 0 ? DROOP : CURL;
+                segment.yRot = 0.0F;
             }
         }
 
