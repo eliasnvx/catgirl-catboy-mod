@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "catgirl:cat_ears"
+    },
+    "title": {
+      "translate": "advancements.catgirl.first_meow.title"
+    },
+    "description": {
+      "translate": "advancements.catgirl.first_meow.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "catgirl:root",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}
