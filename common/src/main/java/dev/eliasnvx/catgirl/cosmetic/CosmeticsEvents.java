@@ -54,18 +54,21 @@ public final class CosmeticsEvents {
         if (slot == null || !CosmeticsManager.canEquip(slot, held)) {
             return EventResult.pass();
         }
-        if (player instanceof ServerPlayer) {
-            ItemStack worn = CosmeticsManager.get(player).get(slot).copy();
-            ItemStack toWear = held.split(1);
-            CosmeticsManager.set(player, slot, toWear);
-            if (!worn.isEmpty()) {
-                if (held.isEmpty()) {
-                    player.setItemInHand(hand, worn);
-                } else if (!player.getInventory().add(worn)) {
-                    player.spawnAtLocation((ServerLevel) player.level(), worn);
-                }
+        if (!(player instanceof ServerPlayer)) {
+            return EventResult.fromMinecraft(InteractionResult.SUCCESS);
+        }
+        ItemStack worn = CosmeticsManager.get(player).get(slot).copy();
+        ItemStack toWear = held.split(1);
+        CosmeticsManager.set(player, slot, toWear);
+        if (!worn.isEmpty()) {
+            if (held.isEmpty()) {
+                player.setItemInHand(hand, worn);
+            } else if (!player.getInventory().add(worn)) {
+                player.spawnAtLocation((ServerLevel) player.level(), worn);
             }
         }
-        return EventResult.fromMinecraft(InteractionResult.SUCCESS);
+        // Tell vanilla what the hand holds now: without it, the use code sees the emptied stack and clears the hand,
+        // deleting the swapped-out cosmetic (Fabric fires this event inside Item#use).
+        return EventResult.fromMinecraft(InteractionResult.SUCCESS.heldItemTransformedTo(player.getItemInHand(hand)));
     }
 }
