@@ -1,0 +1,21 @@
+# Gradle / IDE
+.gradle/
+build/
+out/
+run/
+runs/
+*.iml
+.idea/
+.vscode/
+bin/
+.architectury-transformer/
+
+# Secrets
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# Minecraft logs written by dev tools
+logs/

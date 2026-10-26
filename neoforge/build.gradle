@@ -1,0 +1,64 @@
+apply plugin: "com.gradleup.shadow"
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+configurations {
+    common
+    shadowBundle
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+}
+
+dependencies {
+    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
+    implementation "dev.architectury:architectury-neoforge:${rootProject.architectury_api_version}"
+    implementation "com.geckolib:geckolib-neoforge-${rootProject.minecraft_version}:${rootProject.geckolib_version}"
+
+    common(project(path: ":common")) { transitive false }
+
+    // Curios: wear our cosmetics in its slots (compat.curios). Compile only; -Pcompat=true also loads Curios, JEI and
+    // Jade in the dev runs (runClient, runDevCheck)
+    compileOnly("maven.modrinth:curios:${rootProject.curios_neoforge_version}") { transitive false }
+    if (project.findProperty("compat") == "true") {
+        runtimeOnly("maven.modrinth:curios:${rootProject.curios_neoforge_version}") { transitive false }
+        runtimeOnly "mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}"
+        runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}") { transitive false }
+    }
+    shadowBundle(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive false }
+}
+
+// Dev-only check on NeoForge (the Fabric client GameTests can't run here): joins run/saves/catgirl-check, dresses the
+// player, places blocks and mobs, takes screenshots into run/screenshots and quits. ./gradlew :neoforge:runDevCheck
+loom {
+    runs {
+        devCheck {
+            client()
+            name "NeoForge Dev Check"
+            property "catgirl.devcheck", "true"
+            programArgs "--quickPlaySingleplayer", "catgirl-check"
+        }
+    }
+}
+
+jar {
+    archiveClassifier = "raw"
+}
+
+shadowJar {
+    dependsOn jar
+    mainSpec.sourcePaths.clear()
+    from(zipTree(jar.archiveFile))
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = null
+    archiveVersion = "${project.version}+${rootProject.minecraft_version}-neoforge"
+    exclude "fabric.mod.json"
+    exclude "dev/eliasnvx/catgirl/neoforge/dev/**" // DevCheck stays out of the released jar
+    exclude "architectury.common.json"
+    from rootProject.file("LICENSE")
+}
+
+assemble.dependsOn shadowJar

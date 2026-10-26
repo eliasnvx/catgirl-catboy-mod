@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "Catgirl & catboy cosmetics: cat ears, tails, paws and collars with bells, plus a meow key, catnip and a cardboard box.",
+  "authors": [
+    "eliasnvx"
+  ],
+  "license": "MIT",
+  "icon": "assets/catgirl/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.eliasnvx.catgirl.fabric.CatgirlModFabric"
+    ],
+    "client": [
+      "dev.eliasnvx.catgirl.fabric.CatgirlModFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "dev.eliasnvx.catgirl.compat.jei.CatgirlJeiPlugin"
+    ],
+    "jade": [
+      "dev.eliasnvx.catgirl.compat.jade.CatgirlJadePlugin"
+    ]
+  },
+  "depends": {
+    "minecraft": ">=${minecraft_version}",
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": ">=${fabric_api_version}",
+    "architectury": ">=${architectury_api_version}",
+    "geckolib": ">=${geckolib_version}",
+    "java": ">=25"
+  },
+  "suggests": {
+    "jei": "*",
+    "jade": "*"
+  },
+  "mixins": [
+    "catgirl.mixins.json"
+  ]
+}

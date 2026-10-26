@@ -1,0 +1,59 @@
+package dev.eliasnvx.catgirl.cosmetic;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Immutable snapshot of a player's cosmetic slots, stored as a player attachment. Keyed by slot id, so slots
+ * that a later version removes keep their items instead of losing them. Only non-empty slots are kept.
+ */
+public record CosmeticInventory(Map<Identifier, ItemStack> items) {
+
+    public static final CosmeticInventory EMPTY = new CosmeticInventory(Map.of());
+
+    public static final Codec<CosmeticInventory> CODEC = RecordCodecBuilder.create(i -> i.group(
+            Codec.unboundedMap(Identifier.CODEC, ItemStack.CODEC).fieldOf("items").forGetter(CosmeticInventory::items)
+    ).apply(i, CosmeticInventory::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, CosmeticInventory> STREAM_CODEC =
+            ByteBufCodecs.<RegistryFriendlyByteBuf, Identifier, ItemStack, Map<Identifier, ItemStack>>map(
+                    HashMap::new, Identifier.STREAM_CODEC, ItemStack.STREAM_CODEC).map(CosmeticInventory::new, CosmeticInventory::items);
+
+    public CosmeticInventory {
+        Map<Identifier, ItemStack> copy = new LinkedHashMap<>();
+        items.forEach((slot, stack) -> {
+            if (!stack.isEmpty()) {
+                copy.put(slot, stack);
+            }
+        });
+        items = Collections.unmodifiableMap(copy);
+    }
+
+    public ItemStack get(CatSlot slot) {
+        return items.getOrDefault(slot.id(), ItemStack.EMPTY);
+    }
+
+    public CosmeticInventory with(CatSlot slot, ItemStack stack) {
+        Map<Identifier, ItemStack> next = new LinkedHashMap<>(items);
+        if (stack.isEmpty()) {
+            next.remove(slot.id());
+        } else {
+            next.put(slot.id(), stack);
+        }
+        return new CosmeticInventory(next);
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+}

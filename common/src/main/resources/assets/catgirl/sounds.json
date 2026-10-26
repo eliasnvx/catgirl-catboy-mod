@@ -1,0 +1,80 @@
+{
+  "player.meow": {
+    "subtitle": "subtitles.catgirl.player.meow",
+    "sounds": [
+      {
+        "name": "minecraft:mob/cat/meow1",
+        "pitch": 1.2
+      },
+      {
+        "name": "minecraft:mob/cat/meow2",
+        "pitch": 1.2
+      },
+      {
+        "name": "minecraft:mob/cat/meow3",
+        "pitch": 1.2
+      }
+    ]
+  },
+  "item.bell_collar.jingle": {
+    "subtitle": "subtitles.catgirl.item.bell_collar.jingle",
+    "sounds": [
+      {
+        "name": "minecraft:note/icechime",
+        "pitch": 1.6,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:note/bell",
+        "pitch": 2.0,
+        "volume": 0.35
+      }
+    ]
+  },
+  "block.cat_bed.purr": {
+    "subtitle": "subtitles.catgirl.block.cat_bed.purr",
+    "sounds": [
+      {
+        "name": "minecraft:mob/cat/purr1"
+      },
+      {
+        "name": "minecraft:mob/cat/purr2"
+      },
+      {
+        "name": "minecraft:mob/cat/purr3"
+      }
+    ]
+  },
+  "entity.bakeneko.hiss": {
+    "subtitle": "subtitles.catgirl.entity.bakeneko.hiss",
+    "sounds": [
+      {
+        "name": "minecraft:mob/cat/hiss1",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/cat/hiss2",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/cat/hiss3",
+        "pitch": 0.8
+      }
+    ]
+  },
+  "entity.cat_spirit.fade": {
+    "subtitle": "subtitles.catgirl.entity.cat_spirit.fade",
+    "sounds": [
+      {
+        "name": "minecraft:mob/cat/purreow1",
+        "pitch": 1.5,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:mob/cat/purreow2",
+        "pitch": 1.5,
+        "volume": 0.6
+      }
+    ]
+  }
+}
