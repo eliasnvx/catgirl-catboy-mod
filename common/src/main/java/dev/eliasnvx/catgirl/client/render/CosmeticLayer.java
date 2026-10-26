@@ -35,7 +35,7 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
     }
 
     /** Blush is a tint on the cheeks, not paint: the skin shows through. */
-    private static final float BLUSH_OPACITY = 0.6F;
+    public static final float BLUSH_OPACITY = 0.6F;
 
     private static final int OPAQUE = 255;
 

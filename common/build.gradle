@@ -27,7 +27,18 @@ tasks.register("exportBlockbenchStarters", JavaExec) {
     doFirst { workingDir.mkdirs() }
 }
 
-// common/src/test holds the dev tool above, no unit tests yet
+// Dev tool: whole characters in full outfits as Blockbench projects in art/characters (art/characters/README.md)
+tasks.register("exportCharacters", JavaExec) {
+    group = "catgirl"
+    description = "Exports catgirl/catboy characters in full outfits as .bbmodel projects into art/characters"
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = "dev.eliasnvx.catgirl.tools.CharacterExport"
+    args rootProject.file("art/characters").absolutePath, rootProject.projectDir.absolutePath
+    workingDir = layout.buildDirectory.dir("character-export").get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+// common/src/test holds the dev tools above, no unit tests yet
 tasks.named("test") {
     failOnNoDiscoveredTests = false
 }
