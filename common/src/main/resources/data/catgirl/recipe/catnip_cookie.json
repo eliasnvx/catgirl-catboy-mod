@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "catgirl:catnip",
+    "minecraft:wheat",
+    "minecraft:sugar"
+  ],
+  "result": {
+    "id": "catgirl:catnip_cookie",
+    "count": 4
+  }
+}

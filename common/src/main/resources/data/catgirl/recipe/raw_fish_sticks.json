@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:cod",
+    "minecraft:wheat"
+  ],
+  "result": {
+    "id": "catgirl:raw_fish_sticks",
+    "count": 4
+  }
+}

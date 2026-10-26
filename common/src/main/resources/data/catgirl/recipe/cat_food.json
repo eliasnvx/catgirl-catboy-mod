@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#catgirl:raw_fish",
+    "minecraft:bone",
+    "minecraft:wheat"
+  ],
+  "result": {
+    "id": "catgirl:cat_food",
+    "count": 2
+  }
+}

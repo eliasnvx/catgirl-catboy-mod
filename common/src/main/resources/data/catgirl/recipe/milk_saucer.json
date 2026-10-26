@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:milk_bucket",
+    "minecraft:bowl",
+    "minecraft:bowl",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "catgirl:milk_saucer",
+    "count": 3
+  }
+}

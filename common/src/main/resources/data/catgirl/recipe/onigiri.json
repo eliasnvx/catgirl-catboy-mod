@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#catgirl:cooked_fish",
+    "minecraft:wheat",
+    "minecraft:dried_kelp"
+  ],
+  "result": {
+    "id": "catgirl:onigiri",
+    "count": 1
+  }
+}
