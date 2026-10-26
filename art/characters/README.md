@@ -3,12 +3,15 @@
 Blockbench projects of whole characters wearing a piece in every slot, built from the same models the game draws.
 Pose them, light them, take screenshots or export them to Blender.
 
+As in game, cat-ear headphones bring their own ears, so a worn pair of cat ears isn't drawn under them
+(items in `#catgirl:covers_ears`).
+
 | File | Arms | Coat | Outfit |
 |---|---|---|---|
 | `catgirl_ginger.bbmodel` | slim | Ginger | ears, ear bows, blush, bell collar, paw gloves, leg warmers, paw slippers, tail |
-| `catboy_gray.bbmodel` | classic | Gray | ears, headphones (blue), whiskers, velvet choker, paw mittens, leg warmers, paw slippers, tail |
+| `catboy_gray.bbmodel` | classic | Gray | cat-ear headphones (blue), whiskers, velvet choker, paw mittens, leg warmers, paw slippers, tail |
 | `catgirl_calico.bbmodel` | slim | Calico | ears, bell headband, whiskers, neck ribbon, paw mittens, leg warmers, paw slippers, tail |
-| `catboy_siamese.bbmodel` | classic | Siamese | ears, headphones, blush, bell collar, paw gloves, leg warmers, paw slippers, tail |
+| `catboy_siamese.bbmodel` | classic | Siamese | cat-ear headphones, blush, bell collar, paw gloves, leg warmers, paw slippers, tail |
 
 ## Open
 

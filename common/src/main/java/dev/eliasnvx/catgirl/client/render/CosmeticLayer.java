@@ -101,11 +101,14 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
         boolean slim = state.skin.model() == PlayerModelType.SLIM;
         // a visible helmet covers the head slot (headphones, bows, headband); ears poke out on top by themselves
         boolean helmet = CatModels.EarsModel.wearsHelmet(state);
+        // cat-ear headphones bring their own ears: the ears slot would stick out of them
+        boolean earsCovered = data.earsCovered() && !helmet;
         List<CosmeticRenderData.Worn> worn = data.worn();
         for (int i = 0; i < worn.size(); i++) {
             CosmeticRenderData.Worn item = worn.get(i);
             Entry entry = entries.get(item.item());
-            if (entry != null && !(helmet && item.slot() == CatSlot.HEAD)) {
+            boolean hidden = helmet && item.slot() == CatSlot.HEAD || earsCovered && item.slot() == CatSlot.EARS;
+            if (entry != null && !hidden) {
                 int[] colors = entry.colors().of(item);
                 GeoCosmeticRenderer geo = slim ? entry.slimGeo() : entry.wideGeo();
                 if (!geo.submit(poseStack, collector, light, overlay, state, getParentModel(), colors, entry.alpha())) {

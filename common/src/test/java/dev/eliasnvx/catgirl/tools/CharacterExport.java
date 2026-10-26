@@ -3,6 +3,8 @@ package dev.eliasnvx.catgirl.tools;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import dev.eliasnvx.catgirl.CatgirlMod;
 import dev.eliasnvx.catgirl.client.render.CosmeticLayer;
 import dev.eliasnvx.catgirl.client.render.CosmeticRenderData;
 import dev.eliasnvx.catgirl.client.render.PartColors;
@@ -25,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +58,7 @@ public final class CharacterExport {
     private static final String SLIM = "_slim";
     private static final Path FUR = Path.of("common/src/main/resources/assets/catgirl/textures/entity/cosmetic/fur.png");
     private static final Path SKINS = Path.of("common/src/main/resources/assets/catgirl/textures/entity/neko");
+    private static final Path TAGS = Path.of("common/src/main/resources/data/catgirl/tags/item");
     /** The player model's parts that the game doesn't draw on a player (cape and the deadmau5 ears, if present). */
     private static final Set<String> SKIPPED_PARTS = Set.of("cloak", "ear", "left_ear", "right_ear");
     private static final String[] FACES = {"north", "east", "south", "west", "up", "down"};
@@ -138,7 +142,14 @@ public final class CharacterExport {
             bodyGroups.put(name, group);
             outliner.add(group);
         }
+        // as in game: a head piece with ears of its own (#catgirl:covers_ears) hides the ears slot (#catgirl:ears)
+        Set<String> covering = tagItems(root, "covers_ears");
+        Set<String> ears = tagItems(root, "ears");
+        boolean earsCovered = look.pieces().stream().anyMatch(piece -> covering.contains(piece.item()));
         for (Piece piece : look.pieces()) {
+            if (earsCovered && ears.contains(piece.item())) {
+                continue;
+            }
             String layer = look.slim() && layers.containsKey(piece.item() + SLIM) ? piece.item() + SLIM : piece.item();
             ModelPart model = layers.get(layer).get().bakeRoot();
             CatModels.applyRestPose(locations.get(layer), model);
@@ -406,6 +417,19 @@ public final class CharacterExport {
     /** Stable ids per look, so re-exporting gives the same file. */
     private String uuid() {
         return UUID.nameUUIDFromBytes((look.name() + "/" + uuidCounter++).getBytes(StandardCharsets.UTF_8)).toString();
+    }
+
+    /** The catgirl items listed in one of the mod's item tags (only direct entries). */
+    private static Set<String> tagItems(Path root, String tag) throws IOException {
+        JsonObject json = JsonParser.parseString(Files.readString(root.resolve(TAGS).resolve(tag + ".json"))).getAsJsonObject();
+        Set<String> items = new HashSet<>();
+        json.getAsJsonArray("values").forEach(value -> {
+            String id = value.getAsString();
+            if (id.startsWith(CatgirlMod.MOD_ID + ":")) {
+                items.add(id.substring(CatgirlMod.MOD_ID.length() + 1));
+            }
+        });
+        return items;
     }
 
     private static List<String> childNames(ModelPart part) {

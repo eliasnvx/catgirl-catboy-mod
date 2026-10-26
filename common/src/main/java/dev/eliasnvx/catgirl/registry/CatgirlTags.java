@@ -26,6 +26,8 @@ public final class CatgirlTags {
     public static final TagKey<Item> SPIRIT_GIFTS = tag("spirit_gifts");
     /** Jingle when the wearer jumps (neck or head slot). */
     public static final TagKey<Item> BELLS = tag("bells");
+    /** Head pieces with ears of their own (cat-ear headphones): the ears slot isn't drawn under them. */
+    public static final TagKey<Item> COVERS_EARS = tag("covers_ears");
 
     private CatgirlTags() {
     }

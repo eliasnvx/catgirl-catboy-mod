@@ -111,7 +111,8 @@ public final class CosmeticsLookClientTest implements FabricClientGameTest {
 
             // face and head pieces, close up from the front
             camera(context, CameraType.THIRD_PERSON_FRONT);
-            faceAndHead(world, Coat.WHITE, new ItemStack(CatgirlItems.WHISKERS.get()), new ItemStack(CatgirlItems.CAT_EAR_HEADPHONES.get()), false);
+            // ears worn too: the headphones' own ears hide them (#catgirl:covers_ears)
+            faceAndHead(world, Coat.WHITE, new ItemStack(CatgirlItems.WHISKERS.get()), new ItemStack(CatgirlItems.CAT_EAR_HEADPHONES.get()), true);
             context.waitTicks(SETTLE / 2);
             shot(context, "catgirl_face_whiskers_headphones", CLOSE_UP_FOV);
             faceAndHead(world, Coat.GINGER, new ItemStack(CatgirlItems.BLUSH.get()), new ItemStack(CatgirlItems.EAR_BOWS.get()), true);

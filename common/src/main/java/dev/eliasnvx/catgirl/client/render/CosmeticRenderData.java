@@ -5,6 +5,7 @@ import dev.eliasnvx.catgirl.cosmetic.Coat;
 import dev.eliasnvx.catgirl.cosmetic.CosmeticInventory;
 import dev.eliasnvx.catgirl.cosmetic.CosmeticsManager;
 import dev.eliasnvx.catgirl.registry.CatgirlComponents;
+import dev.eliasnvx.catgirl.registry.CatgirlTags;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -48,6 +49,7 @@ public final class CosmeticRenderData {
 
     private CosmeticInventory source;
     private List<Worn> worn = List.of();
+    private boolean earsCovered;
     private final float phase;
     private float turnSway;
     private float walkAmount;
@@ -92,6 +94,7 @@ public final class CosmeticRenderData {
             }
         }
         this.worn = List.copyOf(list);
+        this.earsCovered = inventory.get(CatSlot.HEAD).is(CatgirlTags.COVERS_EARS);
         this.source = inventory;
     }
 
@@ -125,6 +128,11 @@ public final class CosmeticRenderData {
 
     public List<Worn> worn() {
         return worn;
+    }
+
+    /** Whether the head piece has ears of its own ({@code #catgirl:covers_ears}), so the ears slot isn't drawn. */
+    public boolean earsCovered() {
+        return earsCovered;
     }
 
     /** Sideways swing in radians caused by body turning (negative = left). */
