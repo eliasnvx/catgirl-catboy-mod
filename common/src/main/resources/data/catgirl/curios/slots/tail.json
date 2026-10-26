@@ -1,0 +1,7 @@
+{
+  "order": 195,
+  "icon": "catgirl:container/slot/tail",
+  "validators": [
+    "curios:tag"
+  ]
+}

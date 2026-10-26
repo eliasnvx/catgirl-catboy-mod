@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "catgirl:cat_ear_headphones",
+      "required": false
+    },
+    {
+      "id": "catgirl:ear_bows",
+      "required": false
+    },
+    {
+      "id": "catgirl:bell_headband",
+      "required": false
+    },
+    {
+      "id": "catgirl:whiskers",
+      "required": false
+    },
+    {
+      "id": "catgirl:blush",
+      "required": false
+    }
+  ]
+}

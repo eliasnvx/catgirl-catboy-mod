@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#catgirl:hand_paws",
+      "required": false
+    }
+  ]
+}
