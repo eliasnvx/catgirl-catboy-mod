@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "catgirl:blocks/cat_bed",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "catgirl:cat_bed"
+        }
+      ]
+    }
+  ]
+}

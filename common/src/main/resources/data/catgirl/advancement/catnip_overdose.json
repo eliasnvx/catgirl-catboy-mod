@@ -1,0 +1,28 @@
+{
+  "parent": "catgirl:root",
+  "display": {
+    "icon": {
+      "id": "catgirl:catnip"
+    },
+    "title": {
+      "translate": "advancements.catgirl.catnip_overdose.title"
+    },
+    "description": {
+      "translate": "advancements.catgirl.catnip_overdose.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}
