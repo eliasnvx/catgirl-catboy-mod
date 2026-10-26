@@ -1,0 +1,653 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.catgirl.whiskers",
+        "texture_width": 64,
+        "texture_height": 64,
+        "visible_bounds_width": 3,
+        "visible_bounds_height": 3,
+        "visible_bounds_offset": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      },
+      "bones": [
+        {
+          "name": "armorHead",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ]
+        },
+        {
+          "name": "armorBody",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ]
+        },
+        {
+          "name": "armorLeftArm",
+          "pivot": [
+            5.0,
+            22.0,
+            0.0
+          ]
+        },
+        {
+          "name": "armorRightArm",
+          "pivot": [
+            -5.0,
+            22.0,
+            0.0
+          ]
+        },
+        {
+          "name": "armorLeftLeg",
+          "pivot": [
+            1.9,
+            12.0,
+            0.0
+          ]
+        },
+        {
+          "name": "armorRightLeg",
+          "pivot": [
+            -1.9,
+            12.0,
+            0.0
+          ]
+        },
+        {
+          "name": "right_whisker1",
+          "parent": "armorHead",
+          "pivot": [
+            2.0,
+            26.35,
+            -4.6
+          ]
+        },
+        {
+          "name": "right_whisker1_main",
+          "parent": "right_whisker1",
+          "pivot": [
+            2.0,
+            26.35,
+            -4.6
+          ],
+          "cubes": [
+            {
+              "origin": [
+                2.0,
+                26.25,
+                -4.6
+              ],
+              "size": [
+                2.8,
+                0.2,
+                0.05
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    0.05,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    2.85,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0.0,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "north": {
+                  "uv": [
+                    0.05,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    2.85,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    2.9,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "right_whisker0",
+          "parent": "armorHead",
+          "pivot": [
+            2.0,
+            26.9,
+            -4.6
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -11.4592
+          ]
+        },
+        {
+          "name": "right_whisker0_main",
+          "parent": "right_whisker0",
+          "pivot": [
+            2.0,
+            26.9,
+            -4.6
+          ],
+          "cubes": [
+            {
+              "origin": [
+                2.0,
+                26.8,
+                -4.6
+              ],
+              "size": [
+                2.8,
+                0.2,
+                0.05
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    0.05,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    2.85,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0.0,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "north": {
+                  "uv": [
+                    0.05,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    2.85,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    2.9,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "left_whisker0",
+          "parent": "armorHead",
+          "pivot": [
+            -2.0,
+            26.9,
+            -4.6
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            11.4592
+          ]
+        },
+        {
+          "name": "left_whisker0_main",
+          "parent": "left_whisker0",
+          "pivot": [
+            -2.0,
+            26.9,
+            -4.6
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -4.8,
+                26.8,
+                -4.6
+              ],
+              "size": [
+                2.8,
+                0.2,
+                0.05
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    0.05,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    2.85,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0.0,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "north": {
+                  "uv": [
+                    0.05,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    2.85,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    2.9,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "left_whisker1",
+          "parent": "armorHead",
+          "pivot": [
+            -2.0,
+            26.35,
+            -4.6
+          ]
+        },
+        {
+          "name": "left_whisker1_main",
+          "parent": "left_whisker1",
+          "pivot": [
+            -2.0,
+            26.35,
+            -4.6
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -4.8,
+                26.25,
+                -4.6
+              ],
+              "size": [
+                2.8,
+                0.2,
+                0.05
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    0.05,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    2.85,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0.0,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "north": {
+                  "uv": [
+                    0.05,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    2.85,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    2.9,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "left_whisker2",
+          "parent": "armorHead",
+          "pivot": [
+            -2.0,
+            25.8,
+            -4.6
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -11.4592
+          ]
+        },
+        {
+          "name": "left_whisker2_main",
+          "parent": "left_whisker2",
+          "pivot": [
+            -2.0,
+            25.8,
+            -4.6
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -4.8,
+                25.7,
+                -4.6
+              ],
+              "size": [
+                2.8,
+                0.2,
+                0.05
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    0.05,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    2.85,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0.0,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "north": {
+                  "uv": [
+                    0.05,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    2.85,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    2.9,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "right_whisker2",
+          "parent": "armorHead",
+          "pivot": [
+            2.0,
+            25.8,
+            -4.6
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            11.4592
+          ]
+        },
+        {
+          "name": "right_whisker2_main",
+          "parent": "right_whisker2",
+          "pivot": [
+            2.0,
+            25.8,
+            -4.6
+          ],
+          "cubes": [
+            {
+              "origin": [
+                2.0,
+                25.7,
+                -4.6
+              ],
+              "size": [
+                2.8,
+                0.2,
+                0.05
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    0.05,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    2.85,
+                    0.0
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.05
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0.0,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "north": {
+                  "uv": [
+                    0.05,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    2.85,
+                    0.05
+                  ],
+                  "uv_size": [
+                    0.05,
+                    0.2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    2.9,
+                    0.05
+                  ],
+                  "uv_size": [
+                    2.8,
+                    0.2
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

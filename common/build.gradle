@@ -14,3 +14,20 @@ dependencies {
     compileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
     compileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}") { transitive false }
 }
+
+// Dev tool: code cosmetic models -> starting Blockbench/GeckoLib files in art/blockbench (art/blockbench/README.md)
+tasks.register("exportBlockbenchStarters", JavaExec) {
+    group = "catgirl"
+    description = "Exports every code cosmetic model as a starting .geo.json + fur texture into art/blockbench"
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = "dev.eliasnvx.catgirl.tools.BlockbenchStarterExport"
+    args rootProject.file("art/blockbench").absolutePath, rootProject.projectDir.absolutePath
+    // Minecraft's logger writes logs/ into the working directory: keep it out of the source tree
+    workingDir = layout.buildDirectory.dir("blockbench-export").get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+// common/src/test holds the dev tool above, no unit tests yet
+tasks.named("test") {
+    failOnNoDiscoveredTests = false
+}
