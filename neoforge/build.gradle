@@ -41,8 +41,18 @@ loom {
             property "catgirl.devcheck", "true"
             programArgs "--quickPlaySingleplayer", "catgirl-check"
         }
+        // Server GameTests: the shared bodies in common/.../gametest, registered by dev/CatgirlGameTestsNeoForge
+        gameTestServer {
+            server()
+            forgeTemplate("gameTestServer")
+            name "NeoForge GameTest Server"
+            runDir "build/run/gameTest"
+        }
     }
 }
+
+// `build` -> `check` -> GameTests on NeoForge too (Fabric wires runGameTest into build itself)
+tasks.named("check") { dependsOn "runGameTestServer" }
 
 jar {
     archiveClassifier = "raw"
@@ -56,7 +66,9 @@ shadowJar {
     archiveClassifier = null
     archiveVersion = "${project.version}+${rootProject.minecraft_version}-neoforge"
     exclude "fabric.mod.json"
-    exclude "dev/eliasnvx/catgirl/neoforge/dev/**" // DevCheck stays out of the released jar
+    exclude "dev/eliasnvx/catgirl/neoforge/dev/**" // DevCheck and the GameTest glue stay out of the released jar
+    exclude "dev/eliasnvx/catgirl/gametest/**"
+    exclude "data/catgirl/structure/empty.nbt"
     exclude "architectury.common.json"
     from rootProject.file("LICENSE")
 }

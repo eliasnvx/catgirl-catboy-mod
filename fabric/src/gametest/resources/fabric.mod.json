@@ -8,6 +8,9 @@
     "client": [
       "dev.eliasnvx.catgirl.fabric.gametest.ClientTestExit"
     ],
+    "fabric-gametest": [
+      "dev.eliasnvx.catgirl.fabric.gametest.CosmeticSlotGameTestsFabric"
+    ],
     "fabric-client-gametest": [
       "dev.eliasnvx.catgirl.fabric.gametest.CosmeticsLookClientTest",
       "dev.eliasnvx.catgirl.fabric.gametest.SetBonusesClientTest",

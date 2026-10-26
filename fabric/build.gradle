@@ -29,13 +29,15 @@ dependencies {
     shadowBundle(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 }
 
+// Server GameTests: shared bodies in common/.../gametest (the cosmetic slot dupe checks), Fabric glue in src/gametest.
+// They run as part of `build` via the generated `runGameTest` task (Fabric skips the EULA check for test servers).
 // Client GameTests (src/gametest): screenshots of the cosmetics in a real client window. Not part of `build`;
 // run manually: ./gradlew :fabric:runClientGameTest (screenshots in build/run/clientGameTest/screenshots)
 fabricApi {
     configureTests {
         createSourceSet = true
         modId = "catgirl-test"
-        enableGameTests = false
+        enableGameTests = true
         enableClientGameTests = true
     }
 }
@@ -52,6 +54,7 @@ shadowJar {
     archiveClassifier = null
     archiveVersion = "${project.version}+${rootProject.minecraft_version}-fabric"
     exclude "architectury.common.json"
+    exclude "dev/eliasnvx/catgirl/gametest/**" // shared GameTest bodies stay out of the released jar
     from rootProject.file("LICENSE")
 }
 
