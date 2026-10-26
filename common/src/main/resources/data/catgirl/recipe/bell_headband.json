@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SSS",
+    "S N"
+  ],
+  "key": {
+    "S": "minecraft:string",
+    "N": "minecraft:gold_nugget"
+  },
+  "result": {
+    "id": "catgirl:bell_headband"
+  }
+}

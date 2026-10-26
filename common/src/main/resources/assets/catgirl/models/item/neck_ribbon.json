@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "catgirl:item/neck_ribbon",
+    "layer1": "catgirl:item/neck_ribbon_1"
+  }
+}

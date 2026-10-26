@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "catgirl:item/leg_warmers",
+    "layer1": "catgirl:item/leg_warmers_1",
+    "layer2": "catgirl:item/leg_warmers_2",
+    "layer3": "catgirl:item/leg_warmers_3"
+  }
+}

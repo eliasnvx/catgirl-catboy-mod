@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "IWI",
+    "N N"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "W": "minecraft:pink_wool",
+    "N": "minecraft:note_block"
+  },
+  "result": {
+    "id": "catgirl:cat_ear_headphones"
+  }
+}

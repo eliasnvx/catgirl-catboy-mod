@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SLS",
+    " N "
+  ],
+  "key": {
+    "S": "minecraft:string",
+    "L": "minecraft:leather",
+    "N": "minecraft:gold_nugget"
+  },
+  "result": {
+    "id": "catgirl:bell_collar"
+  }
+}

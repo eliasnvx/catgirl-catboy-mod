@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "catgirl:item/whiskers",
+    "layer1": "catgirl:item/whiskers_1"
+  }
+}

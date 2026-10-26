@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/ear_bows",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -2080678
+      }
+    ]
+  }
+}

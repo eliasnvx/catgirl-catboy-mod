@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "catgirl:item/paw_slippers",
+    "layer1": "catgirl:item/paw_slippers_1",
+    "layer2": "catgirl:item/paw_slippers_2"
+  }
+}

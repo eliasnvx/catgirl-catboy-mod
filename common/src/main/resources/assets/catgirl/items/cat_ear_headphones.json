@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/cat_ear_headphones",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -546612
+      }
+    ]
+  }
+}

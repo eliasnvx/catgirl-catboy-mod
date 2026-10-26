@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "catgirl:item/ear_bows",
+    "layer1": "catgirl:item/ear_bows_1"
+  }
+}

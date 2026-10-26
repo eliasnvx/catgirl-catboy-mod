@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/bell_collar",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -3657156
+      }
+    ]
+  }
+}

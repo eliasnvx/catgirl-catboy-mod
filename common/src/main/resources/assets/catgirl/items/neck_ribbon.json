@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/neck_ribbon",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -880194
+      }
+    ]
+  }
+}

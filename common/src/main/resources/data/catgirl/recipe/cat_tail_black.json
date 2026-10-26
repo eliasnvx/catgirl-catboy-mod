@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "catgirl_cat_tail",
+  "pattern": [
+    "  W",
+    " W ",
+    "SL "
+  ],
+  "key": {
+    "W": "minecraft:black_wool",
+    "S": "minecraft:string",
+    "L": "minecraft:leather"
+  },
+  "result": {
+    "id": "catgirl:cat_tail",
+    "components": {
+      "catgirl:coat": "black"
+    }
+  }
+}

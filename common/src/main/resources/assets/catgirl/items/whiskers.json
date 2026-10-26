@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/whiskers",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -14015704
+      }
+    ]
+  }
+}

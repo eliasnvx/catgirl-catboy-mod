@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/blush",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -1023342
+      }
+    ]
+  }
+}

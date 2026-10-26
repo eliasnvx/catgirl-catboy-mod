@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_dye",
+  "dye": "#minecraft:dyes",
+  "group": "catgirl_dyed",
+  "result": {
+    "id": "catgirl:neck_ribbon"
+  },
+  "target": "catgirl:neck_ribbon"
+}

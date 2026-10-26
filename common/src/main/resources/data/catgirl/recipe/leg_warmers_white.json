@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "catgirl_leg_warmers",
+  "pattern": [
+    "WSW",
+    "W W"
+  ],
+  "key": {
+    "W": "minecraft:white_wool",
+    "S": "minecraft:string"
+  },
+  "result": {
+    "id": "catgirl:leg_warmers",
+    "components": {
+      "catgirl:coat": "white"
+    }
+  }
+}

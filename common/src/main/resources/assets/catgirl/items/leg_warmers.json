@@ -1,0 +1,24 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "catgirl:item/leg_warmers",
+    "tints": [
+      {
+        "type": "catgirl:coat",
+        "part": "main"
+      },
+      {
+        "type": "catgirl:coat",
+        "part": "patch"
+      },
+      {
+        "type": "catgirl:coat",
+        "part": "inner"
+      },
+      {
+        "type": "catgirl:coat",
+        "part": "tuft"
+      }
+    ]
+  }
+}
