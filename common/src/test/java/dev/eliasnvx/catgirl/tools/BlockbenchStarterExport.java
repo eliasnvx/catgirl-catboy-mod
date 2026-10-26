@@ -33,9 +33,10 @@ import java.util.function.Supplier;
  * <p>Run: {@code ./gradlew :common:exportBlockbenchStarters}. Layout follows {@code GeoCosmeticRenderer}: body parts
  * become the armor bones, a code part's coat-part holders ({@code g_inner}…) become child bones
  * {@code <part>_inner}…, and the moving parts keep their code names so they move like the code model. The tail is
- * exported in its rest pose. Conversion (same as Femboy Mod's exporter, checked in game there): Java model space
- * (y down, neck at y=0) to Bedrock (y up, neck at y=24): positions keep x and z, y becomes {@code 24 - y}; rotations
- * negate x and y and keep z.
+ * exported in its rest pose. Conversion: Java model space (y down, neck at y=0) to Bedrock (y up, neck at y=24):
+ * positions keep x and z, y becomes {@code 24 - y}; rotations are written unchanged. Blockbench and GeckoLib mirror x
+ * when they load a Bedrock file and negate the x and y rotations with it, which gives Java's own rotations in their
+ * mirrored, y-up space (the tail then droops in Blockbench as in game).
  */
 public final class BlockbenchStarterExport {
 
@@ -118,7 +119,7 @@ public final class BlockbenchStarterExport {
             }
             json.add("pivot", array(absX, NECK_Y - absY, absZ));
             if (part.xRot != 0 || part.yRot != 0 || part.zRot != 0) {
-                json.add("rotation", array((float) -Math.toDegrees(part.xRot), (float) -Math.toDegrees(part.yRot),
+                json.add("rotation", array((float) Math.toDegrees(part.xRot), (float) Math.toDegrees(part.yRot),
                         (float) Math.toDegrees(part.zRot)));
             }
             JsonArray cubes = new JsonArray();
@@ -154,9 +155,9 @@ public final class BlockbenchStarterExport {
         return name;
     }
 
-    /** Dev tool only: ModelPart keeps its cubes and children private. */
+    /** Dev tool only: ModelPart keeps its cubes and children private. Also used by {@link CharacterExport}. */
     @SuppressWarnings("unchecked")
-    private static <T> T field(ModelPart part, String name) {
+    static <T> T field(ModelPart part, String name) {
         try {
             var field = ModelPart.class.getDeclaredField(name);
             field.setAccessible(true);
