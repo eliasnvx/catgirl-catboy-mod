@@ -57,19 +57,25 @@ loom {
 // `build` -> `check` -> GameTests on NeoForge too (Fabric wires runGameTest into build itself)
 tasks.named("check") { dependsOn "runGameTestServer" }
 
+// -Pwith_devcheck=true keeps DevCheck and the GameTest glue in the jar (classifier "devcheck"), to run the check in a
+// client installed with the loader's own installer, outside Gradle. Never a release.
+def withDevCheck = project.findProperty("with_devcheck") == "true"
+
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = "dev-shadow"
     exclude "fabric.mod.json"
-    exclude "dev/eliasnvx/catgirl/neoforge/dev/**" // DevCheck and the GameTest glue stay out of the released jar
-    exclude "dev/eliasnvx/catgirl/gametest/**"
-    exclude "data/catgirl/structure/empty.nbt"
     exclude "architectury.common.json"
+    if (!withDevCheck) {
+        exclude "dev/eliasnvx/catgirl/neoforge/dev/**" // DevCheck and the GameTest glue stay out of the released jar
+        exclude "dev/eliasnvx/catgirl/gametest/**"
+        exclude "data/catgirl/structure/empty.nbt"
+    }
     from rootProject.file("LICENSE")
 }
 
 remapJar {
     inputFile.set(shadowJar.archiveFile)
-    archiveClassifier = null
+    archiveClassifier = withDevCheck ? "devcheck" : null
     archiveVersion = "${project.version}+${rootProject.minecraft_version}-neoforge"
 }

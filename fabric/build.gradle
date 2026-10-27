@@ -56,6 +56,37 @@ loom {
     }
 }
 
+// The same DevCheck against the release jar in a production-like client: real Fabric Loader with intermediary names and
+// the dependencies' release jars, as players run it. DevCheck isn't in the release jar, so it comes as a second mod
+// built from src/gametest plus the shared gametest package. ./gradlew :fabric:runProdDevCheck [-Pcompat=true];
+// files in build/run/prodDevCheck
+configurations {
+    prodMods { transitive = false }
+}
+dependencies {
+    prodMods "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    prodMods "dev.architectury:architectury-fabric:${rootProject.architectury_api_version}"
+    prodMods "software.bernie.geckolib:geckolib-fabric-${rootProject.minecraft_version}:${rootProject.geckolib_version}"
+    if (project.findProperty("compat") == "true") {
+        prodMods "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
+        prodMods "maven.modrinth:jade:${rootProject.jade_fabric_version}"
+    }
+}
+def devCheckJar = tasks.register("devCheckJar", Jar) {
+    from sourceSets.gametest.output
+    from(project(":common").sourceSets.main.output) { include "dev/eliasnvx/catgirl/gametest/**" }
+    archiveClassifier = "devcheck-dev"
+}
+def remapDevCheckJar = tasks.register("remapDevCheckJar", net.fabricmc.loom.task.RemapJarTask) {
+    inputFile = devCheckJar.flatMap { it.archiveFile }
+    archiveClassifier = "devcheck"
+}
+tasks.register("runProdDevCheck", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+    mods.from(remapJar, remapDevCheckJar, configurations.prodMods)
+    jvmArgs.add("-Dcatgirl.devcheck=true")
+    runDir = layout.buildDirectory.dir("run/prodDevCheck")
+}
+
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = "dev-shadow"
