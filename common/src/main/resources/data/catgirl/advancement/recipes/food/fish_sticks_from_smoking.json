@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:fish_sticks_from_smoking"
+        "recipe": "catgirl:fish_sticks_from_smoking"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

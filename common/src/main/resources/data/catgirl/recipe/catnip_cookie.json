@@ -1,9 +1,15 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "catgirl:catnip",
-    "minecraft:wheat",
-    "minecraft:sugar"
+    {
+      "item": "catgirl:catnip"
+    },
+    {
+      "item": "minecraft:wheat"
+    },
+    {
+      "item": "minecraft:sugar"
+    }
   ],
   "result": {
     "id": "catgirl:catnip_cookie",

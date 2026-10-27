@@ -5,7 +5,7 @@ import dev.eliasnvx.catgirl.CatgirlMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Locale;
@@ -29,9 +29,9 @@ public enum CatSlot implements StringRepresentable {
             ByteBufCodecs.idMapper(i -> values()[i], Enum::ordinal);
 
     private final String name = name().toLowerCase(Locale.ROOT);
-    private final Identifier id = CatgirlMod.id(name);
+    private final ResourceLocation id = CatgirlMod.id(name);
 
-    public Identifier id() {
+    public ResourceLocation id() {
         return id;
     }
 

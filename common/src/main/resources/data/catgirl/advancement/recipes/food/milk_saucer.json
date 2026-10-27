@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:milk_saucer"
+        "recipe": "catgirl:milk_saucer"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

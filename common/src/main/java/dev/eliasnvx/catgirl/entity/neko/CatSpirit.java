@@ -17,7 +17,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
@@ -47,7 +47,7 @@ public class CatSpirit extends NekoMob {
     }
 
     /** Dark, quiet nights only, never in peaceful. */
-    public static boolean checkSpawnRules(EntityType<? extends Mob> type, ServerLevelAccessor level, EntitySpawnReason reason,
+    public static boolean checkSpawnRules(EntityType<? extends Mob> type, ServerLevelAccessor level, MobSpawnType reason,
                                           BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL && level.getMaxLocalRawBrightness(pos) <= MAX_SPAWN_LIGHT
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random);
@@ -69,7 +69,7 @@ public class CatSpirit extends NekoMob {
         super.aiStep();
         // a slow float up and down
         setDeltaMovement(getDeltaMovement().x, Mth.sin(tickCount * BOB_SPEED) * BOB, getDeltaMovement().z);
-        if (level() instanceof ServerLevel level && level.isBrightOutside()) {
+        if (level() instanceof ServerLevel level && level.isDay()) {
             fade(level);
         }
     }
@@ -82,16 +82,18 @@ public class CatSpirit extends NekoMob {
         }
         if (level() instanceof ServerLevel level) {
             held.consume(1, player);
-            player.addEffect(new MobEffectInstance(CatgirlEffects.NINE_LIVES.asHolder(), NINE_LIVES_TICKS));
-            player.sendOverlayMessage(Component.translatable("message.catgirl.cat_spirit.gift"));
+            player.addEffect(new MobEffectInstance(CatgirlEffects.NINE_LIVES, NINE_LIVES_TICKS));
+            player.displayClientMessage(Component.translatable("message.catgirl.cat_spirit.gift"), true);
             fade(level);
         }
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        fade(level); // spirits can't be hurt: they just leave
+    public boolean hurt(DamageSource source, float amount) {
+        if (level() instanceof ServerLevel level) {
+            fade(level); // spirits can't be hurt: they just leave
+        }
         return false;
     }
 
@@ -107,7 +109,7 @@ public class CatSpirit extends NekoMob {
     }
 
     @Override
-    public boolean causeFallDamage(double fallDistance, float multiplier, DamageSource source) {
+    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
         return false;
     }
 }

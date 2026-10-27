@@ -13,14 +13,17 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -36,18 +39,34 @@ import java.util.List;
 @JeiPlugin
 public final class CatgirlJeiPlugin implements IModPlugin {
 
-    private static final Identifier UID = CatgirlMod.id("jei_plugin");
+    private static final ResourceLocation UID = CatgirlMod.id("jei_plugin");
     private static final String INFO = "jei.catgirl.info.";
 
     @Override
-    public Identifier getPluginUid() {
+    public ResourceLocation getPluginUid() {
         return UID;
     }
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         for (RegistrySupplier<Item> item : CatgirlItems.coated()) {
-            registration.registerFromDataComponentTypes(item.get(), CatgirlComponents.COAT.get());
+            registration.registerSubtypeInterpreter(item.get(), CoatSubtypes.INSTANCE);
+        }
+    }
+
+    /** One JEI entry per coat. */
+    private enum CoatSubtypes implements ISubtypeInterpreter<ItemStack> {
+        INSTANCE;
+
+        @Override
+        public @Nullable Object getSubtypeData(ItemStack stack, UidContext context) {
+            return stack.get(CatgirlComponents.COAT.get());
+        }
+
+        @Override
+        public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
+            Coat coat = stack.get(CatgirlComponents.COAT.get());
+            return coat == null ? "" : coat.getSerializedName();
         }
     }
 

@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -29,7 +29,7 @@ public class YarnBallItem extends Item {
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS,
                 0.5F, 0.6F + level.getRandom().nextFloat() * 0.3F);
@@ -42,7 +42,7 @@ public class YarnBallItem extends Item {
             ball.setThrower(player);
             level.addFreshEntity(ball);
         }
-        player.getCooldowns().addCooldown(held, COOLDOWN);
-        return InteractionResult.SUCCESS;
+        player.getCooldowns().addCooldown(this, COOLDOWN);
+        return InteractionResultHolder.sidedSuccess(held, level.isClientSide());
     }
 }

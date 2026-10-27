@@ -6,8 +6,12 @@
     "S N"
   ],
   "key": {
-    "S": "minecraft:string",
-    "N": "minecraft:gold_nugget"
+    "S": {
+      "item": "minecraft:string"
+    },
+    "N": {
+      "item": "minecraft:gold_nugget"
+    }
   },
   "result": {
     "id": "catgirl:bell_headband"

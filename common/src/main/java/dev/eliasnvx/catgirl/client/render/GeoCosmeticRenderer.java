@@ -1,36 +1,34 @@
 package dev.eliasnvx.catgirl.client.render;
 
-import com.geckolib.animatable.SingletonGeoAnimatable;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.cache.GeckoLibResources;
-import com.geckolib.cache.model.BakedGeoModel;
-import com.geckolib.cache.model.GeoBone;
-import com.geckolib.model.GeoModel;
-import com.geckolib.renderer.GeoArmorRenderer.ArmorSegment;
-import com.geckolib.renderer.GeoObjectRenderer;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
-import com.geckolib.util.GeckoLibUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.eliasnvx.catgirl.CatgirlMod;
 import dev.eliasnvx.catgirl.client.render.model.CatModels;
+import dev.eliasnvx.catgirl.client.render.model.FurBuilder;
 import dev.eliasnvx.catgirl.cosmetic.Coat;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
-import org.joml.Vector3f;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor.ARGB32;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.state.BoneSnapshot;
+import software.bernie.geckolib.cache.GeckoLibCache;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoObjectRenderer;
+import software.bernie.geckolib.util.Color;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib.util.RenderUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,9 +40,9 @@ import java.util.function.Function;
  * A Blockbench/GeckoLib model for a worn piece, used instead of the code model whenever its file exists (a resource
  * pack can add one too). Adapted from Femboy Mod's geo renderer, plus coat parts and the code models' motion.
  *
- * <p>Files for an item {@code catgirl:<item>}:
+ * <p>Files for an item {@code catgirl:<item>} (GeckoLib 4 paths):
  * <ul>
- *     <li>model: {@code assets/catgirl/geckolib/models/cosmetic/<item>.geo.json}; slim-armed players use
+ *     <li>model: {@code assets/catgirl/geo/cosmetic/<item>.geo.json}; slim-armed players use
  *     {@code <item>_slim.geo.json} when it exists</li>
  *     <li>texture: {@code assets/catgirl/textures/cosmetic/<item>.png}, grayscale: every pixel is multiplied by the
  *     color of the coat part (or dye) its bone belongs to</li>
@@ -55,41 +53,38 @@ import java.util.function.Function;
  *     {@code armorRightLeg} follow the player's body, like GeckoLib armor</li>
  *     <li>a bone whose name ends in {@code _inner}, {@code _points}, {@code _patch} or {@code _tuft} is drawn in that
  *     coat part's color; any other bone in the main color. The model is drawn once per part present, with the other
- *     parts' bones skipped (their children still draw)</li>
+ *     parts' bones hidden (their children still draw)</li>
  *     <li>a bone named like a moving part of the code model ({@code left_ear}, {@code segment0}…, {@code bell}) gets
  *     the same motion on top of its own rest pose: ear twitches and flattening, tail sway, bell swing</li>
  * </ul>
- * GeckoLib runs bone updaters when the frame is drawn, after every submission, so each player and coat part has its
- * own {@link Pass} holding the pose copied at submit time (reused frame to frame, no per-frame allocation).
+ * The baked model is shared, so every draw sets the bones it needs right before GeckoLib draws them.
  */
 public final class GeoCosmeticRenderer {
 
     private static final Coat.Part[] PARTS = Coat.Part.values();
-    private static final ArmorSegment[] SEGMENTS = {ArmorSegment.HEAD, ArmorSegment.CHEST, ArmorSegment.LEFT_ARM,
-            ArmorSegment.RIGHT_ARM, ArmorSegment.LEFT_LEG, ArmorSegment.RIGHT_LEG};
     private static final String[] SEGMENT_BONES = {"armorHead", "armorBody", "armorLeftArm", "armorRightArm",
             "armorLeftLeg", "armorRightLeg"};
-    /** x, y, z, xRot, yRot, zRot */
-    private static final int POSE = 6;
+    /** Rest pivots of the vanilla humanoid arms and legs (GeoArmorRenderer#applyBaseTransformations), per segment. */
+    private static final float[] SEGMENT_X = {0.0F, 0.0F, -5.0F, 5.0F, -2.0F, 2.0F};
+    private static final float[] SEGMENT_Y = {0.0F, 0.0F, 2.0F, 2.0F, 12.0F, 12.0F};
     private static final int OPAQUE = 255;
 
-    private final Identifier[] models;
-    private final Identifier texture;
+    private final ResourceLocation[] models;
+    private final ResourceLocation texture;
     private final CatModels.FurModel posed;
     private final Function<String, ModelPart> codeParts;
     private final Function<String, ModelPart> restParts;
     private final Animatable animatable = new Animatable();
     private final Renderer renderer = new Renderer(new Model());
     private final Related related = new Related();
-    private final Int2ObjectOpenHashMap<Pass> passes = new Int2ObjectOpenHashMap<>();
-    private final Vector3f scratch = new Vector3f();
 
     // what the current baked model holds; rebuilt when a resource reload brings a new one
     private @Nullable BakedGeoModel indexed;
     private GeoBone[] bones = new GeoBone[0];
     private Coat.Part[] boneParts = new Coat.Part[0];
     private final boolean[] partPresent = new boolean[PARTS.length];
-    private final GeoBone[] segmentBones = new GeoBone[SEGMENTS.length];
+    private final GeoBone[] segmentBones = new GeoBone[SEGMENT_BONES.length];
+    private final ModelPart[] bodyParts = new ModelPart[SEGMENT_BONES.length];
     private GeoBone[] movingBones = new GeoBone[0];
     private ModelPart[] movingParts = new ModelPart[0];
     private PartPose[] restPoses = new PartPose[0];
@@ -98,22 +93,26 @@ public final class GeoCosmeticRenderer {
      * @param item   the item's path ({@code paw_gloves})
      * @param slim   whether this renderer draws for slim-armed players (tries {@code <item>_slim} first)
      * @param layer  the code model's layer: its moving parts drive the geo model's bones of the same name
-     * @param posed  an instance of the code model, posed here every submission to read the motion from
+     * @param posed  an instance of the code model, posed here every draw to read the motion from
      */
     public GeoCosmeticRenderer(String item, boolean slim, ModelLayerLocation layer, CatModels.FurModel posed, ModelPart restRoot) {
-        Identifier wide = CatgirlMod.id("cosmetic/" + item);
-        this.models = slim ? new Identifier[]{CatgirlMod.id("cosmetic/" + item + "_slim"), wide} : new Identifier[]{wide};
+        ResourceLocation wide = modelId(item);
+        this.models = slim ? new ResourceLocation[]{modelId(item + "_slim"), wide} : new ResourceLocation[]{wide};
         this.texture = CatgirlMod.id("textures/cosmetic/" + item + ".png");
         this.posed = posed;
-        this.codeParts = posed.root().createPartLookup();
+        this.codeParts = FurBuilder.partLookup(posed.root());
         CatModels.applyRestPose(layer, restRoot);
-        this.restParts = restRoot.createPartLookup();
+        this.restParts = FurBuilder.partLookup(restRoot);
+    }
+
+    private static ResourceLocation modelId(String name) {
+        return CatgirlMod.id("geo/cosmetic/" + name + ".geo.json");
     }
 
     /** The baked geo model to draw, or null to fall back to the code model. Checked every frame. */
     private @Nullable BakedGeoModel model() {
-        for (Identifier id : models) {
-            BakedGeoModel model = GeckoLibResources.getBakedModels().cache().get(id);
+        for (ResourceLocation id : models) {
+            BakedGeoModel model = GeckoLibCache.getBakedModels().get(id);
             if (model != null) {
                 related.model = id;
                 return model;
@@ -123,8 +122,8 @@ public final class GeoCosmeticRenderer {
     }
 
     /** @return false when no geo model exists for this item (the caller draws the code model) */
-    public boolean submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, AvatarRenderState state,
-                          PlayerModel parent, int[] colors, int alpha) {
+    public boolean render(PoseStack poseStack, MultiBufferSource buffers, int light, int overlay, PlayerPose state,
+                          PlayerModel<AbstractClientPlayer> parent, int[] colors, int alpha) {
         BakedGeoModel model = model();
         if (model == null) {
             return false;
@@ -132,27 +131,23 @@ public final class GeoCosmeticRenderer {
         if (model != indexed) {
             index(model);
         }
+        parent.copyPropertiesTo(posed);
         posed.setupAnim(state);
-        Minecraft minecraft = Minecraft.getInstance();
-        float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         related.entityId = state.id;
         related.overlay = overlay;
-        related.translucent = alpha < OPAQUE;
+        related.parent = parent;
+        RenderType type = alpha < OPAQUE ? RenderType.entityTranslucent(texture) : RenderType.entityCutout(texture);
         for (Coat.Part part : PARTS) {
             if (!partPresent[part.ordinal()]) {
                 continue;
             }
-            int key = state.id * PARTS.length + part.ordinal();
-            Pass pass = passes.get(key);
-            if (pass == null) {
-                pass = new Pass();
-                passes.put(key, pass);
-            }
-            pass.capture(part, parent);
-            related.color = ARGB.color(alpha, colors[part.ordinal()]);
-            renderer.performRenderPass(animatable, related, poseStack, collector,
-                    minecraft.gameRenderer.gameRenderState().levelRenderState.cameraRenderState, light, partialTick, pass);
+            related.part = part;
+            related.color = ARGB32.color(alpha, colors[part.ordinal()]);
+            // a non-null buffer keeps GeckoLib on our buffer source
+            renderer.render(poseStack, animatable, buffers, type, buffers.getBuffer(type), light, partialTick);
         }
+        related.parent = null;
         return true;
     }
 
@@ -169,29 +164,28 @@ public final class GeoCosmeticRenderer {
         List<ModelPart> movingCode = new ArrayList<>();
         List<PartPose> rest = new ArrayList<>();
         for (int i = 0; i < bones.length; i++) {
-            boneParts[i] = partOf(bones[i].name());
+            boneParts[i] = partOf(bones[i].getName());
             partPresent[boneParts[i].ordinal()] = true;
-            ModelPart code = codeParts.apply(bones[i].name());
-            ModelPart restPart = restParts.apply(bones[i].name());
-            if (code != null && restPart != null && !isSegmentBone(bones[i].name())) {
+            ModelPart code = codeParts.apply(bones[i].getName());
+            ModelPart restPart = restParts.apply(bones[i].getName());
+            if (code != null && restPart != null && !isSegmentBone(bones[i].getName())) {
                 moving.add(bones[i]);
                 movingCode.add(code);
                 rest.add(restPart.storePose());
             }
         }
-        for (int s = 0; s < SEGMENTS.length; s++) {
+        for (int s = 0; s < SEGMENT_BONES.length; s++) {
             segmentBones[s] = model.getBone(SEGMENT_BONES[s]).orElse(null);
         }
         movingBones = moving.toArray(new GeoBone[0]);
         movingParts = movingCode.toArray(new ModelPart[0]);
         restPoses = rest.toArray(new PartPose[0]);
-        passes.clear();
         indexed = model;
     }
 
     private static void collect(GeoBone bone, List<GeoBone> out) {
         out.add(bone);
-        for (GeoBone child : bone.children()) {
+        for (GeoBone child : bone.getChildBones()) {
             collect(child, out);
         }
     }
@@ -216,78 +210,47 @@ public final class GeoCosmeticRenderer {
         return Coat.Part.MAIN;
     }
 
-    /** One player's pose for one coat part's draw, copied at submit time and applied when GeckoLib draws. */
-    private final class Pass implements RenderPassInfo.BoneUpdater<GeoRenderState> {
-        private Coat.Part part = Coat.Part.MAIN;
-        private final float[] body = new float[SEGMENTS.length * POSE];
-        private float[] moving = new float[0];
-        private GeoBone[] bonesAtCapture = new GeoBone[0];
-        private Coat.Part[] partsAtCapture = new Coat.Part[0];
-        private GeoBone[] segmentsAtCapture = new GeoBone[SEGMENTS.length];
-        private GeoBone[] movingAtCapture = new GeoBone[0];
-
-        void capture(Coat.Part part, PlayerModel parent) {
-            this.part = part;
-            this.bonesAtCapture = bones;
-            this.partsAtCapture = boneParts;
-            this.movingAtCapture = movingBones;
-            System.arraycopy(segmentBones, 0, segmentsAtCapture, 0, SEGMENTS.length);
-            for (int s = 0; s < SEGMENTS.length; s++) {
-                ModelPart bodyPart = SEGMENTS[s].modelPartGetter.apply(parent);
-                Vector3f pos = SEGMENTS[s].modelPartMatcher.apply(scratch.set(bodyPart.x, bodyPart.y, bodyPart.z));
-                int o = s * POSE;
-                body[o] = pos.x;
-                body[o + 1] = pos.y;
-                body[o + 2] = pos.z;
-                body[o + 3] = -bodyPart.xRot;
-                body[o + 4] = -bodyPart.yRot;
-                body[o + 5] = bodyPart.zRot;
-            }
-            if (moving.length != movingParts.length * POSE) {
-                moving = new float[movingParts.length * POSE];
-            }
-            // Java model space -> GeckoLib: x and z stay, y flips; rotations flip x and y
-            for (int i = 0; i < movingParts.length; i++) {
-                ModelPart now = movingParts[i];
-                PartPose rest = restPoses[i];
-                int o = i * POSE;
-                moving[o] = now.x - rest.x();
-                moving[o + 1] = -(now.y - rest.y());
-                moving[o + 2] = now.z - rest.z();
-                moving[o + 3] = -(now.xRot - rest.xRot());
-                moving[o + 4] = -(now.yRot - rest.yRot());
-                moving[o + 5] = now.zRot - rest.zRot();
+    /** Sets the shared model's bones for the current draw: this part only, the wearer's body, the code model's motion. */
+    private void pose(PlayerModel<AbstractClientPlayer> parent, Coat.Part part) {
+        for (int i = 0; i < bones.length; i++) {
+            bones[i].setHidden(boneParts[i] != part);
+        }
+        ModelPart[] body = bodyParts;
+        body[0] = parent.head;
+        body[1] = parent.body;
+        body[2] = parent.leftArm;
+        body[3] = parent.rightArm;
+        body[4] = parent.leftLeg;
+        body[5] = parent.rightLeg;
+        for (int s = 0; s < SEGMENT_BONES.length; s++) {
+            GeoBone bone = segmentBones[s];
+            if (bone != null) {
+                RenderUtil.matchModelPartRot(body[s], bone);
+                bone.updatePosition(body[s].x + SEGMENT_X[s], SEGMENT_Y[s] - body[s].y, body[s].z);
             }
         }
-
-        @Override
-        public void run(RenderPassInfo<GeoRenderState> info, BoneSnapshots snapshots) {
-            for (int i = 0; i < bonesAtCapture.length; i++) {
-                snapshots.get(bonesAtCapture[i]).skipRender(partsAtCapture[i] != part);
-            }
-            for (int s = 0; s < SEGMENTS.length; s++) {
-                GeoBone bone = segmentsAtCapture[s];
-                if (bone != null) {
-                    int o = s * POSE;
-                    snapshots.get(bone).setTranslateX(body[o]).setTranslateY(body[o + 1]).setTranslateZ(body[o + 2])
-                            .setRotX(body[o + 3]).setRotY(body[o + 4]).setRotZ(body[o + 5]);
-                }
-            }
-            for (int i = 0; i < movingAtCapture.length; i++) {
-                int o = i * POSE;
-                snapshots.get(movingAtCapture[i]).setTranslateX(moving[o]).setTranslateY(moving[o + 1]).setTranslateZ(moving[o + 2])
-                        .setRotX(moving[o + 3]).setRotY(moving[o + 4]).setRotZ(moving[o + 5]);
-            }
+        // Java model space -> GeckoLib: x and z stay, y flips; rotations flip x and y
+        for (int i = 0; i < movingParts.length; i++) {
+            ModelPart now = movingParts[i];
+            PartPose rest = restPoses[i];
+            BoneSnapshot initial = movingBones[i].getInitialSnapshot();
+            movingBones[i].updateRotation(initial.getRotX() - (now.xRot - rest.xRot), initial.getRotY() - (now.yRot - rest.yRot),
+                    initial.getRotZ() + now.zRot - rest.zRot);
+            movingBones[i].updatePosition(initial.getOffsetX() + now.x - rest.x, initial.getOffsetY() - (now.y - rest.y),
+                    initial.getOffsetZ() + now.z - rest.z);
         }
     }
 
-    /** What GeckoLib reads at submit time (color, overlay, render type, model and instance). */
+    /** What the renderer callbacks read for the current draw. */
     private static final class Related {
         int entityId;
-        int color;
+        int color = 0xFFFFFFFF;
         int overlay;
-        boolean translucent;
-        Identifier model;
+        Coat.Part part = Coat.Part.MAIN;
+        ResourceLocation model;
+        @Nullable PlayerModel<AbstractClientPlayer> parent;
+        /** Last color handed to GeckoLib, reused while unchanged. */
+        Color cachedColor = Color.WHITE;
     }
 
     private final class Animatable implements SingletonGeoAnimatable {
@@ -295,33 +258,38 @@ public final class GeoCosmeticRenderer {
 
         @Override
         public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-            // motion comes from the code model, see Pass
+            // motion comes from the code model, see pose()
         }
 
         @Override
         public AnimatableInstanceCache getAnimatableInstanceCache() {
             return cache;
         }
+
+        @Override
+        public double getTick(Object object) {
+            return RenderUtil.getCurrentTick();
+        }
     }
 
     private final class Model extends GeoModel<Animatable> {
         @Override
-        public Identifier getModelResource(GeoRenderState state) {
+        public ResourceLocation getModelResource(Animatable animatable) {
             return related.model;
         }
 
         @Override
-        public Identifier getTextureResource(GeoRenderState state) {
+        public ResourceLocation getTextureResource(Animatable animatable) {
             return texture;
         }
 
         @Override
-        public Identifier getAnimationResource(Animatable animatable) {
+        public ResourceLocation getAnimationResource(Animatable animatable) {
             return related.model;
         }
     }
 
-    private final class Renderer extends GeoObjectRenderer<Animatable, Related, GeoRenderState> {
+    private final class Renderer extends GeoObjectRenderer<Animatable> {
         /** Same transform GeckoLib applies to armor, from player model space. */
         private static final float ARMOR_Y_OFFSET = 24.0F / 16.0F;
 
@@ -329,30 +297,34 @@ public final class GeoCosmeticRenderer {
             super(model);
         }
 
+        /** Replaces the object renderer's block-centered offset with the armor transform, and poses the bones. */
         @Override
-        public void adjustRenderPose(RenderPassInfo<GeoRenderState> info) {
-            info.poseStack().translate(0.0F, ARMOR_Y_OFFSET, 0.0F);
-            info.poseStack().scale(-1.0F, -1.0F, 1.0F);
+        public void preRender(PoseStack poseStack, Animatable animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource,
+                              @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
+                              int packedOverlay, int colour) {
+            if (related.parent != null) {
+                pose(related.parent, related.part);
+            }
+            poseStack.translate(0.0F, ARMOR_Y_OFFSET, 0.0F);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
         }
 
         @Override
-        public long getInstanceId(Animatable animatable, @Nullable Related related) {
-            return related == null ? 0 : related.entityId;
+        public long getInstanceId(Animatable animatable) {
+            return related.entityId;
         }
 
         @Override
-        public int getRenderColor(Animatable animatable, @Nullable Related related, float partialTick) {
-            return related == null ? 0xFFFFFFFF : related.color;
+        public Color getRenderColor(Animatable animatable, float partialTick, int packedLight) {
+            if (related.cachedColor.argbInt() != related.color) {
+                related.cachedColor = new Color(related.color);
+            }
+            return related.cachedColor;
         }
 
         @Override
-        public int getPackedOverlay(Animatable animatable, @Nullable Related related, float u, float partialTick) {
-            return related == null ? super.getPackedOverlay(animatable, null, u, partialTick) : related.overlay;
-        }
-
-        @Override
-        public @Nullable RenderType getRenderType(GeoRenderState state, Identifier texture) {
-            return related.translucent ? RenderTypes.entityTranslucent(texture) : RenderTypes.entityCutout(texture);
+        public int getPackedOverlay(Animatable animatable, float u, float partialTick) {
+            return related.overlay;
         }
     }
 }

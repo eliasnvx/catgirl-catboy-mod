@@ -1,8 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "minecraft:cod",
-    "minecraft:wheat"
+    {
+      "item": "minecraft:cod"
+    },
+    {
+      "item": "minecraft:wheat"
+    }
   ],
   "result": {
     "id": "catgirl:raw_fish_sticks",

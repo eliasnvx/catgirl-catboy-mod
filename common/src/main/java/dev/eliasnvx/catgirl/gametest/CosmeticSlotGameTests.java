@@ -8,7 +8,6 @@ import dev.eliasnvx.catgirl.registry.CatgirlComponents;
 import dev.eliasnvx.catgirl.registry.CatgirlItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,12 +16,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -65,23 +64,23 @@ public final class CosmeticSlotGameTests {
     public static void shiftClick(GameTestHelper helper) {
         run(helper, rig -> {
             rig.inventory().setItem(0, ears(Coat.GINGER));
-            rig.click(rig.hotbar(0), 0, ContainerInput.QUICK_MOVE);
+            rig.click(rig.hotbar(0), 0, ClickType.QUICK_MOVE);
             rig.expectWorn(Coat.GINGER, "shift-click from the hotbar");
             rig.expectTotal(1, "shift-click in");
 
             // slot taken: the ears move between hotbar and inventory like vanilla, the worn ones stay
             rig.inventory().setItem(1, ears(Coat.CALICO));
-            rig.click(rig.hotbar(1), 0, ContainerInput.QUICK_MOVE);
+            rig.click(rig.hotbar(1), 0, ClickType.QUICK_MOVE);
             rig.expectWorn(Coat.GINGER, "shift-click onto a taken slot");
             rig.expectTotal(2, "shift-click onto a taken slot");
 
-            rig.click(rig.ears, 0, ContainerInput.QUICK_MOVE);
+            rig.click(rig.ears, 0, ClickType.QUICK_MOVE);
             rig.expectWornEmpty("shift-click out");
             rig.expectTotal(2, "shift-click out");
 
             // a stack of three (a command can make them stack): one goes on, two stay
             rig.inventory().setItem(2, stackedEars(3));
-            rig.click(rig.hotbar(2), 0, ContainerInput.QUICK_MOVE);
+            rig.click(rig.hotbar(2), 0, ClickType.QUICK_MOVE);
             rig.expectWornCount(1, "shift-click from a stack");
             rig.expectTotal(5, "shift-click from a stack");
 
@@ -89,7 +88,7 @@ public final class CosmeticSlotGameTests {
             rig.reset();
             rig.wear(ears(Coat.GINGER));
             rig.fillInventory();
-            rig.click(rig.ears, 0, ContainerInput.QUICK_MOVE);
+            rig.click(rig.ears, 0, ClickType.QUICK_MOVE);
             rig.expectWorn(Coat.GINGER, "shift-click out with a full inventory");
             rig.expectTotal(1, "shift-click out with a full inventory");
         });
@@ -98,41 +97,41 @@ public final class CosmeticSlotGameTests {
     public static void cursorClicks(GameTestHelper helper) {
         run(helper, rig -> {
             rig.inventory().setItem(0, stackedEars(3));
-            rig.click(rig.hotbar(0), 0, ContainerInput.PICKUP);
-            rig.click(rig.ears, 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(0), 0, ClickType.PICKUP);
+            rig.click(rig.ears, 0, ClickType.PICKUP);
             rig.expectWornCount(1, "placing a stack of three");
             rig.helper.assertValueEqual(rig.menu.getCarried().getCount(), 2, "ears left on the cursor");
-            rig.click(rig.ears, 0, ContainerInput.PICKUP);
-            rig.click(rig.ears, 1, ContainerInput.PICKUP);
+            rig.click(rig.ears, 0, ClickType.PICKUP);
+            rig.click(rig.ears, 1, ClickType.PICKUP);
             rig.expectWornCount(1, "clicking a full slot with more of the same");
-            rig.click(rig.hotbar(0), 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(0), 0, ClickType.PICKUP);
             rig.expectTotal(3, "placing from the cursor");
 
             // different ears on the cursor swap with the worn ones
             rig.reset();
             rig.wear(ears(Coat.GINGER));
             rig.inventory().setItem(0, ears(Coat.CALICO));
-            rig.click(rig.hotbar(0), 0, ContainerInput.PICKUP);
-            rig.click(rig.ears, 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(0), 0, ClickType.PICKUP);
+            rig.click(rig.ears, 0, ClickType.PICKUP);
             rig.expectWorn(Coat.CALICO, "swap with the cursor");
             rig.helper.assertTrue(coat(rig.menu.getCarried()) == Coat.GINGER, "the old ears should be on the cursor");
             rig.expectTotal(2, "swap with the cursor");
-            rig.click(rig.hotbar(0), 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(0), 0, ClickType.PICKUP);
 
             // a stick and leg warmers don't fit
             rig.inventory().setItem(1, new ItemStack(Items.STICK));
-            rig.click(rig.hotbar(1), 0, ContainerInput.PICKUP);
-            rig.click(rig.ears, 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(1), 0, ClickType.PICKUP);
+            rig.click(rig.ears, 0, ClickType.PICKUP);
             rig.expectWorn(Coat.CALICO, "a stick on the ears slot");
-            rig.click(rig.hotbar(1), 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(1), 0, ClickType.PICKUP);
             rig.inventory().setItem(2, new ItemStack(CatgirlItems.LEG_WARMERS.get()));
-            rig.click(rig.hotbar(2), 0, ContainerInput.PICKUP);
-            rig.click(rig.ears, 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(2), 0, ClickType.PICKUP);
+            rig.click(rig.ears, 0, ClickType.PICKUP);
             rig.expectWorn(Coat.CALICO, "leg warmers on the ears slot");
-            rig.click(rig.hotbar(2), 0, ContainerInput.PICKUP);
+            rig.click(rig.hotbar(2), 0, ClickType.PICKUP);
 
             // right-click takes the worn ears onto the cursor
-            rig.click(rig.ears, 1, ContainerInput.PICKUP);
+            rig.click(rig.ears, 1, ClickType.PICKUP);
             rig.expectWornEmpty("right-click take");
             rig.expectTotal(2, "right-click take");
         });
@@ -141,22 +140,22 @@ public final class CosmeticSlotGameTests {
     public static void numberKeys(GameTestHelper helper) {
         run(helper, rig -> {
             rig.inventory().setItem(2, ears(Coat.GINGER));
-            rig.click(rig.ears, 2, ContainerInput.SWAP);
+            rig.click(rig.ears, 2, ClickType.SWAP);
             rig.expectWorn(Coat.GINGER, "key 3 from the hotbar");
-            rig.click(rig.ears, 2, ContainerInput.SWAP);
+            rig.click(rig.ears, 2, ClickType.SWAP);
             rig.expectWornEmpty("key 3 back to the hotbar");
             rig.expectTotal(1, "key 3 there and back");
 
             rig.inventory().setItem(Inventory.SLOT_OFFHAND, ears(Coat.CALICO));
-            rig.click(rig.ears, Inventory.SLOT_OFFHAND, ContainerInput.SWAP);
+            rig.click(rig.ears, Inventory.SLOT_OFFHAND, ClickType.SWAP);
             rig.expectWorn(Coat.CALICO, "F from the offhand");
-            rig.click(rig.ears, 2, ContainerInput.SWAP);
+            rig.click(rig.ears, 2, ClickType.SWAP);
             rig.expectWorn(Coat.GINGER, "key 3 onto a taken slot");
             rig.expectTotal(2, "swapping with the hotbar");
 
             // a stack of three: one goes on, the worn ears go to the inventory
             rig.inventory().setItem(4, stackedEars(3));
-            rig.click(rig.ears, 4, ContainerInput.SWAP);
+            rig.click(rig.ears, 4, ClickType.SWAP);
             rig.expectWornCount(1, "key 5 with a stack");
             rig.expectTotal(5, "key 5 with a stack");
 
@@ -165,15 +164,15 @@ public final class CosmeticSlotGameTests {
             rig.wear(ears(Coat.GINGER));
             rig.inventory().setItem(4, stackedEars(3));
             rig.fillInventory();
-            rig.click(rig.ears, 4, ContainerInput.SWAP);
+            rig.click(rig.ears, 4, ClickType.SWAP);
             rig.expectWornCount(1, "key 5 with a stack and a full inventory");
             rig.expectTotal(4, "key 5 with a stack and a full inventory");
 
             rig.reset();
             rig.inventory().setItem(5, new ItemStack(Items.STICK));
             rig.inventory().setItem(6, new ItemStack(CatgirlItems.LEG_WARMERS.get()));
-            rig.click(rig.ears, 5, ContainerInput.SWAP);
-            rig.click(rig.ears, 6, ContainerInput.SWAP);
+            rig.click(rig.ears, 5, ClickType.SWAP);
+            rig.click(rig.ears, 6, ClickType.SWAP);
             rig.expectWornEmpty("a stick and leg warmers by key");
         });
     }
@@ -205,7 +204,7 @@ public final class CosmeticSlotGameTests {
             rig.wear(stackedEars(1));
             rig.inventory().setItem(10, stackedEars(2));
             rig.menu.setCarried(stackedEars(1));
-            rig.click(InventoryMenu.INV_SLOT_START + 11, 0, ContainerInput.PICKUP_ALL);
+            rig.click(InventoryMenu.INV_SLOT_START + 11, 0, ClickType.PICKUP_ALL);
             rig.expectTotal(4, "double-click collect");
         });
     }
@@ -213,24 +212,24 @@ public final class CosmeticSlotGameTests {
     public static void throwAndMiddleClick(GameTestHelper helper) {
         run(helper, rig -> {
             rig.wear(ears(Coat.GINGER));
-            rig.click(rig.ears, 0, ContainerInput.THROW);
+            rig.click(rig.ears, 0, ClickType.THROW);
             rig.expectWornEmpty("Q on the ears slot");
             rig.expectTotal(1, "Q on the ears slot");
 
             rig.wear(ears(Coat.CALICO));
-            rig.click(rig.ears, 1, ContainerInput.THROW);
+            rig.click(rig.ears, 1, ClickType.THROW);
             rig.expectWornEmpty("Ctrl+Q on the ears slot");
             rig.expectTotal(2, "Ctrl+Q on the ears slot");
 
             // nothing is thrown while the cursor holds something
             rig.wear(ears(Coat.WHITE));
             rig.menu.setCarried(new ItemStack(Items.STICK));
-            rig.click(rig.ears, 0, ContainerInput.THROW);
+            rig.click(rig.ears, 0, ClickType.THROW);
             rig.expectWorn(Coat.WHITE, "Q with a full cursor");
             rig.menu.setCarried(ItemStack.EMPTY);
 
             // middle click copies only in creative
-            rig.click(rig.ears, 2, ContainerInput.CLONE);
+            rig.click(rig.ears, 2, ClickType.CLONE);
             rig.helper.assertTrue(rig.menu.getCarried().isEmpty(), "middle click must not copy in survival");
             rig.expectTotal(3, "middle click in survival");
         });
@@ -366,9 +365,8 @@ public final class CosmeticSlotGameTests {
             this.dropArea = new AABB(center, center).inflate(DROP_RADIUS);
             // the mock player joins at world spawn and in creative
             this.player = helper.makeMockServerPlayerInLevel();
-            player.snapTo(center);
+            player.moveTo(center);
             player.setGameMode(GameType.SURVIVAL);
-            clientLoaded();
             this.menu = player.inventoryMenu;
             this.ears = ((InventoryMenuCosmetics) menu).catgirl$cosmeticStart() + CatSlot.EARS.ordinal();
         }
@@ -381,17 +379,17 @@ public final class CosmeticSlotGameTests {
             return InventoryMenu.USE_ROW_SLOT_START + index;
         }
 
-        void click(int slot, int button, ContainerInput input) {
+        void click(int slot, int button, ClickType input) {
             menu.clicked(slot, button, input, player);
         }
 
         /** A mouse drag with the cursor stack: type 0 left (split evenly), 1 right (one each), 2 middle (copy). */
         void drag(int type, int... slots) {
-            click(OUTSIDE, AbstractContainerMenu.getQuickcraftMask(0, type), ContainerInput.QUICK_CRAFT);
+            click(OUTSIDE, AbstractContainerMenu.getQuickcraftMask(0, type), ClickType.QUICK_CRAFT);
             for (int slot : slots) {
-                click(slot, AbstractContainerMenu.getQuickcraftMask(1, type), ContainerInput.QUICK_CRAFT);
+                click(slot, AbstractContainerMenu.getQuickcraftMask(1, type), ClickType.QUICK_CRAFT);
             }
-            click(OUTSIDE, AbstractContainerMenu.getQuickcraftMask(2, type), ContainerInput.QUICK_CRAFT);
+            click(OUTSIDE, AbstractContainerMenu.getQuickcraftMask(2, type), ClickType.QUICK_CRAFT);
         }
 
         void use(InteractionHand hand, ItemStack stack) {
@@ -408,30 +406,24 @@ public final class CosmeticSlotGameTests {
         }
 
         void die() {
-            player.kill(level());
+            player.kill();
         }
 
         /** Respawns like after death ({@code false}) or like leaving the End ({@code true}); the new player stays here. */
         void respawn(boolean leavingTheEnd) {
             player = level().getServer().getPlayerList().respawn(player, leavingTheEnd,
                     leavingTheEnd ? Entity.RemovalReason.CHANGED_DIMENSION : Entity.RemovalReason.KILLED);
-            clientLoaded();
             menu = player.inventoryMenu;
-        }
-
-        /** What a real client sends once the world is shown; until then the server keeps the player invulnerable. */
-        private void clientLoaded() {
-            player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
         }
 
         void withKeepInventory(boolean keep, Runnable body) {
             GameRules rules = level().getGameRules();
-            boolean before = rules.get(GameRules.KEEP_INVENTORY);
-            rules.set(GameRules.KEEP_INVENTORY, keep, level().getServer());
+            boolean before = rules.getBoolean(GameRules.RULE_KEEPINVENTORY);
+            rules.getRule(GameRules.RULE_KEEPINVENTORY).set(keep, level().getServer());
             try {
                 body.run();
             } finally {
-                rules.set(GameRules.KEEP_INVENTORY, before, level().getServer());
+                rules.getRule(GameRules.RULE_KEEPINVENTORY).set(before, level().getServer());
             }
         }
 

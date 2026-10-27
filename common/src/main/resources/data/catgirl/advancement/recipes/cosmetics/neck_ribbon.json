@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:neck_ribbon"
+        "recipe": "catgirl:neck_ribbon"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

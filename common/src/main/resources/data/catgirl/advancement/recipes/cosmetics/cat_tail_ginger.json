@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:cat_tail_ginger"
+        "recipe": "catgirl:cat_tail_ginger"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

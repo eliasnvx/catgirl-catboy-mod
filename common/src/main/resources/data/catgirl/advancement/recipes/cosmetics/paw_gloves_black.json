@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:paw_gloves_black"
+        "recipe": "catgirl:paw_gloves_black"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

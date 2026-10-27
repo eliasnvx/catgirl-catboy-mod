@@ -7,23 +7,23 @@ import dev.eliasnvx.catgirl.cosmetic.Coat;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor.ARGB32;
 
 import java.util.function.BiFunction;
 
-/** Draws one worn piece: one model instance per {@link Coat.Part}, each submitted with that part's color. */
+/** Draws one worn piece: one model instance per {@link Coat.Part}, each drawn with that part's color. */
 public final class CoatRenderer {
 
-    public static final Identifier FUR = CatgirlMod.id("textures/entity/cosmetic/fur.png");
-    public static final RenderType TYPE = RenderTypes.entityCutout(FUR);
+    public static final ResourceLocation FUR = CatgirlMod.id("textures/entity/cosmetic/fur.png");
+    public static final RenderType TYPE = RenderType.entityCutout(FUR);
     private static final Coat.Part[] PARTS = Coat.Part.values();
 
-    private static final RenderType TRANSLUCENT_TYPE = RenderTypes.entityTranslucent(FUR);
+    private static final RenderType TRANSLUCENT_TYPE = RenderType.entityTranslucent(FUR);
     private static final int OPAQUE = 255;
 
     private final CatModels.FurModel[] models = new CatModels.FurModel[PARTS.length];
@@ -47,11 +47,18 @@ public final class CoatRenderer {
         }
     }
 
-    /** @param colors 24-bit colors indexed by {@link Coat.Part#ordinal()} */
-    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, AvatarRenderState state, int[] colors) {
+    /**
+     * @param parent the wearer's posed model: every part model copies its pose
+     * @param colors 24-bit colors indexed by {@link Coat.Part#ordinal()}
+     */
+    public void render(PoseStack poseStack, MultiBufferSource buffers, int light, int overlay, PlayerPose state,
+                       PlayerModel<AbstractClientPlayer> parent, int[] colors) {
         for (int i = 0; i < PARTS.length; i++) {
             if (present[i]) { // skip parts the model has no boxes for
-                collector.submitModel(models[i], state, poseStack, type, light, overlay, ARGB.color(alpha, colors[i]), null, state.outlineColor);
+                CatModels.FurModel model = models[i];
+                parent.copyPropertiesTo(model);
+                model.setupAnim(state);
+                model.renderToBuffer(poseStack, buffers.getBuffer(type), light, overlay, ARGB32.color(alpha, colors[i]));
             }
         }
     }

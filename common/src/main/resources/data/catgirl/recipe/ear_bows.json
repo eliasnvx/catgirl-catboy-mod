@@ -6,8 +6,12 @@
     "S S"
   ],
   "key": {
-    "R": "minecraft:red_wool",
-    "S": "minecraft:string"
+    "R": {
+      "item": "minecraft:red_wool"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
   },
   "result": {
     "id": "catgirl:ear_bows"

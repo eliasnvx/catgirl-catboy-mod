@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:paw_mittens_white"
+        "recipe": "catgirl:paw_mittens_white"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

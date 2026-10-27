@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:catnip_cookie"
+        "recipe": "catgirl:catnip_cookie"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

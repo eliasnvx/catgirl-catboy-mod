@@ -13,7 +13,7 @@
     "show_toast": false,
     "announce_to_chat": false,
     "hidden": false,
-    "background": "minecraft:block/orange_wool"
+    "background": "minecraft:textures/block/orange_wool.png"
   },
   "criteria": {
     "got_ears": {

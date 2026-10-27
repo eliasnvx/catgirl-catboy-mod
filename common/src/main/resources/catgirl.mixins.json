@@ -2,17 +2,17 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.eliasnvx.catgirl.mixin",
-  "compatibilityLevel": "JAVA_25",
+  "compatibilityLevel": "JAVA_21",
   "client": [
     "client.AbstractContainerScreenAccessor",
     "client.AbstractContainerScreenMixin",
-    "client.AbstractRecipeBookScreenMixin",
-    "client.AvatarRenderStateMixin",
-    "client.AvatarRendererHandMixin",
-    "client.AvatarRendererMixin",
     "client.CreativeModeInventoryScreenMixin",
-    "client.EffectsInInventoryMixin",
-    "client.InventoryScreenMixin"
+    "client.EffectRenderingInventoryScreenMixin",
+    "client.InventoryScreenMixin",
+    "client.LivingEntityRendererMixin",
+    "client.ModelPartAccessor",
+    "client.PlayerRendererHandMixin",
+    "client.PlayerRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

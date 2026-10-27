@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:crafting_dye",
-  "dye": "#minecraft:dyes",
-  "group": "catgirl_dyed",
-  "result": {
-    "id": "catgirl:bell_collar"
-  },
-  "target": "catgirl:bell_collar"
-}

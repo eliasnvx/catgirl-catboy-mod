@@ -1,78 +1,87 @@
 package dev.eliasnvx.catgirl.fabric.gametest;
 
 import dev.eliasnvx.catgirl.gametest.CosmeticSlotGameTests;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import dev.eliasnvx.catgirl.gametest.DataGameTests;
+import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 import java.util.Arrays;
 
 /**
- * Fabric glue for the shared {@link CosmeticSlotGameTests} (server GameTests, part of {@code build}). One method per
- * entry of {@link CosmeticSlotGameTests#ALL}; {@link #everySharedTestRegistered} catches a missing one.
+ * Fabric glue for the shared {@link CosmeticSlotGameTests} and {@link DataGameTests} (server GameTests, part of
+ * {@code build}). One method per entry of their {@code ALL} lists; {@link #everySharedTestRegistered} catches a missing one. Every test
+ * runs in Fabric's empty 8x8x8 template.
  */
-public final class CosmeticSlotGameTestsFabric {
+public final class CosmeticSlotGameTestsFabric implements FabricGameTest {
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void shiftClick(GameTestHelper helper) {
         CosmeticSlotGameTests.shiftClick(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void cursorClicks(GameTestHelper helper) {
         CosmeticSlotGameTests.cursorClicks(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void numberKeys(GameTestHelper helper) {
         CosmeticSlotGameTests.numberKeys(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void drag(GameTestHelper helper) {
         CosmeticSlotGameTests.drag(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void doubleClick(GameTestHelper helper) {
         CosmeticSlotGameTests.doubleClick(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void throwAndMiddleClick(GameTestHelper helper) {
         CosmeticSlotGameTests.throwAndMiddleClick(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void rightClickEquip(GameTestHelper helper) {
         CosmeticSlotGameTests.rightClickEquip(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void creativeSlotPacket(GameTestHelper helper) {
         CosmeticSlotGameTests.creativeSlotPacket(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void deathDropsOnce(GameTestHelper helper) {
         CosmeticSlotGameTests.deathDropsOnce(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void keepInventory(GameTestHelper helper) {
         CosmeticSlotGameTests.keepInventory(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
     public void leavingTheEnd(GameTestHelper helper) {
         CosmeticSlotGameTests.leavingTheEnd(helper);
     }
 
-    @GameTest
+    @GameTest(template = EMPTY_STRUCTURE)
+    public void dataLoads(GameTestHelper helper) {
+        DataGameTests.dataLoads(helper);
+    }
+
+    @GameTest(template = EMPTY_STRUCTURE)
     public void everySharedTestRegistered(GameTestHelper helper) {
         long wrappers = Arrays.stream(getClass().getMethods())
                 .filter(method -> method.isAnnotationPresent(GameTest.class))
                 .count() - 1;
-        helper.assertValueEqual(wrappers, (long) CosmeticSlotGameTests.ALL.size(), "Fabric wrappers for the shared tests");
+        helper.assertValueEqual(wrappers, (long) (CosmeticSlotGameTests.ALL.size() + DataGameTests.ALL.size()),
+                "Fabric wrappers for the shared tests");
         helper.succeed();
     }
 }

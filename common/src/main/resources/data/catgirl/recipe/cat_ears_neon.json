@@ -7,9 +7,15 @@
     "SLS"
   ],
   "key": {
-    "W": "minecraft:lime_wool",
-    "S": "minecraft:string",
-    "L": "minecraft:leather"
+    "W": {
+      "item": "minecraft:lime_wool"
+    },
+    "S": {
+      "item": "minecraft:string"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
   },
   "result": {
     "id": "catgirl:cat_ears",

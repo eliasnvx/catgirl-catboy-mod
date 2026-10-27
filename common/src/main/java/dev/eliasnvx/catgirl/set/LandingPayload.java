@@ -41,8 +41,12 @@ public record LandingPayload(int entityId) implements CustomPacketPayload {
     static void sendToTrackingAndSelf(ServerPlayer player) {
         Packet<? super ClientGamePacketListener> packet = (Packet<? super ClientGamePacketListener>)
                 NetworkManager.toPacket(NetworkManager.s2c(), new LandingPayload(player.getId()), player.registryAccess());
-        ((ServerLevel) player.level()).getChunkSource().sendToTrackingPlayersFiltered(player, packet,
-                receiver -> NetworkManager.canPlayerReceive(receiver, TYPE));
+        // 1.21.1 has no filtered tracking broadcast: players in view of the chunk are a superset of the trackers
+        for (ServerPlayer watcher : ((ServerLevel) player.level()).getChunkSource().chunkMap.getPlayers(player.chunkPosition(), false)) {
+            if (watcher != player && NetworkManager.canPlayerReceive(watcher, TYPE)) {
+                watcher.connection.send(packet);
+            }
+        }
         if (NetworkManager.canPlayerReceive(player, TYPE)) {
             player.connection.send(packet);
         }

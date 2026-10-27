@@ -15,15 +15,14 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -62,7 +61,7 @@ public class CatSeat extends Entity {
         if (!level.getEntitiesOfClass(CatSeat.class, new AABB(pos)).isEmpty()) {
             return false;
         }
-        CatSeat seat = CatgirlEntities.SEAT.get().create(level, EntitySpawnReason.TRIGGERED);
+        CatSeat seat = CatgirlEntities.SEAT.get().create(level);
         if (seat == null) {
             return false;
         }
@@ -146,7 +145,7 @@ public class CatSeat extends Entity {
             level.playSound(null, this, CatgirlSounds.CAT_BED_PURR.get(), SoundSource.PLAYERS, PURR_VOLUME, 1.0F);
         }
         if (restTicks == BED_NAP_TICKS) {
-            player.addEffect(new MobEffectInstance(CatgirlEffects.WELL_RESTED.asHolder(), WELL_RESTED_TICKS));
+            player.addEffect(new MobEffectInstance(CatgirlEffects.WELL_RESTED, WELL_RESTED_TICKS));
             player.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST)); // a real nap: no phantoms tonight
             level.sendParticles(ParticleTypes.HEART, getX(), getY() + 0.8, getZ(), NAP_HEARTS, 0.4, 0.2, 0.4, 0.0);
         }
@@ -172,15 +171,15 @@ public class CatSeat extends Entity {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+    public boolean hurt(DamageSource source, float amount) {
         return false;
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(CompoundTag input) {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(CompoundTag output) {
     }
 }

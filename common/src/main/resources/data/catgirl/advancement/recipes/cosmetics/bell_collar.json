@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:bell_collar"
+        "recipe": "catgirl:bell_collar"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:paw_slippers_gray"
+        "recipe": "catgirl:paw_slippers_gray"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

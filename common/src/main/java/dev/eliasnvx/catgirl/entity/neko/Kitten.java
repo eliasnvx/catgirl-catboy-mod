@@ -11,17 +11,16 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
-import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -60,10 +59,10 @@ public class Kitten extends Cat {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
                                         @Nullable SpawnGroupData data) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, reason, data);
-        if (reason != EntitySpawnReason.BREEDING) {
+        if (reason != MobSpawnType.BREEDING) {
             setCoat(Coat.values()[random.nextInt(Coat.values().length)]);
         }
         setAge(AgeableMob.BABY_START_AGE);
@@ -80,11 +79,11 @@ public class Kitten extends Cat {
     }
 
     private void growUp(ServerLevel level) {
-        StrayNeko neko = CatgirlEntities.STRAY_NEKO.get().create(level, EntitySpawnReason.CONVERSION);
+        StrayNeko neko = CatgirlEntities.STRAY_NEKO.get().create(level);
         if (neko == null) {
             return;
         }
-        neko.snapTo(getX(), getY(), getZ(), getYRot(), getXRot());
+        neko.moveTo(getX(), getY(), getZ(), getYRot(), getXRot());
         neko.setCoat(coat());
         neko.setSkin(random.nextInt(CoatedNeko.SKINS));
         neko.setCustomName(getCustomName());
@@ -92,7 +91,7 @@ public class Kitten extends Cat {
             neko.setOwner(owner.getUUID());
         }
         neko.setPersistenceRequired();
-        neko.finalizeSpawn(level, level.getCurrentDifficultyAt(blockPosition()), EntitySpawnReason.CONVERSION, null);
+        neko.finalizeSpawn(level, level.getCurrentDifficultyAt(blockPosition()), MobSpawnType.CONVERSION, null);
         level.addFreshEntity(neko);
         level.sendParticles(ParticleTypes.HAPPY_VILLAGER, getX(), getY() + 0.5, getZ(), GROW_UP_PARTICLES, 0.4, 0.4, 0.4, 0.0);
         discard();
@@ -104,15 +103,15 @@ public class Kitten extends Cat {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public void addAdditionalSaveData(CompoundTag output) {
         super.addAdditionalSaveData(output);
         output.putString("catgirl_coat", coat().getSerializedName());
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    public void readAdditionalSaveData(CompoundTag input) {
         super.readAdditionalSaveData(input);
-        setCoat(NekoData.coat(input.getStringOr("catgirl_coat", "")));
+        setCoat(NekoData.coat(input.getString("catgirl_coat")));
     }
 
     /** If it fits, it sits: a kitten climbs onto a cardboard box nearby and sits there for a while. */

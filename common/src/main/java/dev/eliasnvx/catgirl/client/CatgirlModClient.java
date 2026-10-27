@@ -7,9 +7,13 @@ import dev.architectury.event.events.client.ClientTooltipEvent;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
+import dev.architectury.registry.client.rendering.RenderTypeRegistry;
+import dev.eliasnvx.catgirl.block.CatgirlBlocks;
+import net.minecraft.client.renderer.RenderType;
 import dev.eliasnvx.catgirl.entity.CatgirlEntities;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import dev.eliasnvx.catgirl.CatgirlMod;
+import dev.eliasnvx.catgirl.client.render.ItemTints;
 import dev.eliasnvx.catgirl.client.render.entity.KittenRenderer;
 import dev.eliasnvx.catgirl.client.render.entity.NekoRenderer;
 import dev.eliasnvx.catgirl.client.render.model.CatModels;
@@ -38,17 +42,21 @@ public final class CatgirlModClient {
 
     /** Z by default: M is Xaero's World Map, which most modpacks have. */
     public static final KeyMapping MEOW = new KeyMapping(
-            "key.catgirl.meow", InputConstants.Type.KEYBOARD, InputConstants.KEY_Z, KeyMapping.Category.MULTIPLAYER);
+            "key.catgirl.meow", InputConstants.Type.KEYSYM, InputConstants.KEY_Z, "key.categories.multiplayer");
 
     /** N by default: Full Neko's night vision. */
     public static final KeyMapping NIGHT_VISION = new KeyMapping(
-            "key.catgirl.night_vision", InputConstants.Type.KEYBOARD, InputConstants.KEY_N, KeyMapping.Category.GAMEPLAY);
+            "key.catgirl.night_vision", InputConstants.Type.KEYSYM, InputConstants.KEY_N, "key.categories.gameplay");
 
     private CatgirlModClient() {
     }
 
     public static void init() {
         CatModels.registerLayers();
+        ItemTints.register();
+        // the catnip bush's textures have see-through pixels; 1.21.1 picks a block's render layer in code (as soon as the
+        // block exists: Fabric has it by now, NeoForge registers it later)
+        CatgirlBlocks.CATNIP.listen(catnip -> RenderTypeRegistry.register(RenderType.cutout(), catnip));
         EntityRendererRegistry.register(CatgirlEntities.SEAT, NoopRenderer::new);
         EntityRendererRegistry.register(CatgirlEntities.STRAY_NEKO, context -> new NekoRenderer<>(context, "stray_neko", false));
         EntityRendererRegistry.register(CatgirlEntities.FISHER_NEKO, context -> new NekoRenderer<>(context, "fisher_neko", false));
@@ -60,12 +68,12 @@ public final class CatgirlModClient {
         KeyMappingRegistry.register(NIGHT_VISION);
         ClientTickEvent.CLIENT_POST.register(minecraft -> {
             while (NIGHT_VISION.consumeClick()) {
-                if (minecraft.player != null && minecraft.gui.screen() == null) {
+                if (minecraft.player != null && minecraft.screen == null) {
                     NetworkManager.sendToServer(NightVision.Payload.INSTANCE);
                 }
             }
             while (MEOW.consumeClick()) {
-                if (minecraft.player != null && minecraft.gui.screen() == null) {
+                if (minecraft.player != null && minecraft.screen == null) {
                     NetworkManager.sendToServer(MeowPayload.INSTANCE);
                 }
             }

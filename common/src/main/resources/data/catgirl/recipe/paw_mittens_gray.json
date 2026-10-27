@@ -7,8 +7,12 @@
     "WLW"
   ],
   "key": {
-    "W": "minecraft:gray_wool",
-    "L": "minecraft:leather"
+    "W": {
+      "item": "minecraft:gray_wool"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
   },
   "result": {
     "id": "catgirl:paw_mittens",

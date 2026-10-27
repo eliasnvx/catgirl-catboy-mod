@@ -1,11 +1,21 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "minecraft:iron_ingot",
-    "#catgirl:raw_fish",
-    "#catgirl:raw_fish",
-    "#catgirl:raw_fish",
-    "#catgirl:raw_fish"
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "tag": "catgirl:raw_fish"
+    },
+    {
+      "tag": "catgirl:raw_fish"
+    },
+    {
+      "tag": "catgirl:raw_fish"
+    },
+    {
+      "tag": "catgirl:raw_fish"
+    }
   ],
   "result": {
     "id": "catgirl:tuna_can",

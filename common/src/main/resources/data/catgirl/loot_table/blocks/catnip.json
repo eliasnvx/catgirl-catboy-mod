@@ -13,20 +13,22 @@
     },
     {
       "rolls": 1,
-      "condition": {
-        "type": "minecraft:match_block",
-        "blocks": "catgirl:catnip",
-        "state": {
-          "age": "3"
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "catgirl:catnip",
+          "properties": {
+            "age": "3"
+          }
         }
-      },
+      ],
       "entries": [
         {
           "type": "minecraft:item",
           "name": "catgirl:catnip",
-          "modifier": [
+          "functions": [
             {
-              "type": "minecraft:set_count",
+              "function": "minecraft:set_count",
               "count": {
                 "type": "minecraft:uniform",
                 "min": 1,

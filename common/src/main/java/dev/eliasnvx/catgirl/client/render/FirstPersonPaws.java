@@ -12,12 +12,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -25,9 +25,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * Paw gloves and mittens on the first-person hand (they show in first person too), called from AvatarRendererHandMixin.
- * Rendering is deferred, so each coat part needs its own baked copy of the arm (a part's visibility is read when the
- * frame is drawn, not when it is submitted).
+ * Paw gloves and mittens on the first-person hand (they show in first person too), called from PlayerRendererHandMixin.
+ * Each coat part has its own baked copy of the arm showing only that part.
  */
 public final class FirstPersonPaws {
 
@@ -42,11 +41,8 @@ public final class FirstPersonPaws {
     private FirstPersonPaws() {
     }
 
-    public static void submit(PlayerModel model, ModelPart arm, PoseStack pose, SubmitNodeCollector collector, int light) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return;
-        }
+    public static void render(PlayerModel<AbstractClientPlayer> model, ModelPart arm, PoseStack pose, MultiBufferSource buffers,
+                              int light, AbstractClientPlayer player) {
         ItemStack hands = CosmeticsManager.worn(player).get(CatSlot.HANDS);
         if (hands.isEmpty()) {
             return;
@@ -59,7 +55,7 @@ public final class FirstPersonPaws {
         if (parts == null) {
             return;
         }
-        ModelPart[] roots = parts[player.getSkin().model() == PlayerModelType.SLIM ? SLIM : WIDE];
+        ModelPart[] roots = parts[player.getSkin().model() == PlayerSkin.Model.SLIM ? SLIM : WIDE];
         String side = arm == model.rightArm ? "right_arm" : "left_arm";
         int[] colors = hands.getOrDefault(CatgirlComponents.COAT.get(), Coat.DEFAULT).colors();
         for (int i = 0; i < PARTS.length; i++) {
@@ -68,7 +64,7 @@ public final class FirstPersonPaws {
             }
             ModelPart paw = roots[i].getChild(side);
             paw.loadPose(arm.storePose());
-            collector.submitModelPart(paw, pose, CoatRenderer.TYPE, light, OverlayTexture.NO_OVERLAY, null, ARGB.opaque(colors[i]));
+            paw.render(pose, buffers.getBuffer(CoatRenderer.TYPE), light, OverlayTexture.NO_OVERLAY, ARGB32.opaque(colors[i]));
         }
     }
 

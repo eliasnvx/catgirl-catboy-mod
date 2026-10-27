@@ -5,7 +5,7 @@ import dev.eliasnvx.catgirl.entity.neko.FisherNeko;
 import dev.eliasnvx.catgirl.entity.neko.Kitten;
 import dev.eliasnvx.catgirl.entity.neko.StrayNeko;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +18,7 @@ import java.util.UUID;
 public enum NekoServerData implements IServerDataProvider<EntityAccessor> {
     INSTANCE;
 
-    static final Identifier UID = CatgirlMod.id("neko");
+    static final ResourceLocation UID = CatgirlMod.id("neko");
     static final String OWNER = "catgirl_owner";
     static final String OWNER_IS_YOU = "catgirl_owner_is_you";
     static final String TRUSTS = "catgirl_trusts";
@@ -35,7 +35,7 @@ public enum NekoServerData implements IServerDataProvider<EntityAccessor> {
             data.putBoolean(OWNER_IS_YOU, owner.equals(viewer));
             ServerPlayer player = ((ServerLevel) accessor.getLevel()).getServer().getPlayerList().getPlayer(owner);
             if (player != null) {
-                data.putString(OWNER, player.getPlainTextName());
+                data.putString(OWNER, player.getGameProfile().getName());
             }
         } else if (entity instanceof FisherNeko fisher) {
             data.putInt(FISH, fisher.delivered(viewer));
@@ -45,7 +45,7 @@ public enum NekoServerData implements IServerDataProvider<EntityAccessor> {
     }
 
     @Override
-    public Identifier getUid() {
+    public ResourceLocation getUid() {
         return UID;
     }
 }

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:tuna_can"
+        "recipe": "catgirl:tuna_can"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

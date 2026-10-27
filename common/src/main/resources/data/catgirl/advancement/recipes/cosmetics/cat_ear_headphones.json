@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:cat_ear_headphones"
+        "recipe": "catgirl:cat_ear_headphones"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

@@ -6,9 +6,15 @@
     " N "
   ],
   "key": {
-    "S": "minecraft:string",
-    "W": "minecraft:black_wool",
-    "N": "minecraft:gold_nugget"
+    "S": {
+      "item": "minecraft:string"
+    },
+    "W": {
+      "item": "minecraft:black_wool"
+    },
+    "N": {
+      "item": "minecraft:gold_nugget"
+    }
   },
   "result": {
     "id": "catgirl:velvet_choker"

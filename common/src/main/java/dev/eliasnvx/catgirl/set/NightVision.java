@@ -37,15 +37,15 @@ public final class NightVision {
             return;
         }
         if (!CatSets.has(player, CatSet.FULL_NEKO)) {
-            player.sendOverlayMessage(Component.translatable("message.catgirl.night_vision.needs_set",
-                    Component.translatable(CatSet.FULL_NEKO.translationKey())));
+            player.displayClientMessage(Component.translatable("message.catgirl.night_vision.needs_set",
+                    Component.translatable(CatSet.FULL_NEKO.translationKey())), true);
             return;
         }
         long now = player.level().getGameTime();
         Long last = LAST_USE.get(player.getUUID());
         if (last != null && now - last < SetBalance.NIGHT_VISION_COOLDOWN_TICKS) {
             long seconds = (SetBalance.NIGHT_VISION_COOLDOWN_TICKS - (now - last) + TICKS_PER_SECOND - 1) / TICKS_PER_SECOND;
-            player.sendOverlayMessage(Component.translatable("message.catgirl.night_vision.cooldown", seconds));
+            player.displayClientMessage(Component.translatable("message.catgirl.night_vision.cooldown", seconds), true);
             return;
         }
         LAST_USE.put(player.getUUID(), now);

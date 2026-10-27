@@ -7,8 +7,12 @@
     " S "
   ],
   "key": {
-    "S": "minecraft:string",
-    "W": "#minecraft:wool"
+    "S": {
+      "item": "minecraft:string"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    }
   },
   "result": {
     "id": "catgirl:yarn_ball",

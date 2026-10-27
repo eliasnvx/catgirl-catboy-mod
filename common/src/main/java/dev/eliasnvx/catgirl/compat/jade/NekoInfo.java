@@ -8,7 +8,7 @@ import dev.eliasnvx.catgirl.entity.neko.StrayNeko;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.IEntityComponentProvider;
@@ -26,10 +26,10 @@ public enum NekoInfo implements IEntityComponentProvider {
         Entity entity = accessor.getEntity();
         CompoundTag data = accessor.getServerData();
         if (entity instanceof StrayNeko) {
-            if (data.getBooleanOr(NekoServerData.OWNER_IS_YOU, false)) {
+            if (data.getBoolean(NekoServerData.OWNER_IS_YOU)) {
                 tooltip.add(Component.translatable("jade.catgirl.stray_neko.trusts_you").withStyle(ChatFormatting.LIGHT_PURPLE));
-            } else if (data.getBooleanOr(NekoServerData.TRUSTS, false)) {
-                String owner = data.getStringOr(NekoServerData.OWNER, "");
+            } else if (data.getBoolean(NekoServerData.TRUSTS)) {
+                String owner = data.getString(NekoServerData.OWNER);
                 tooltip.add(owner.isEmpty() ? Component.translatable("jade.catgirl.stray_neko.trusts_someone")
                         : Component.translatable("jade.catgirl.stray_neko.trusts", owner));
             } else {
@@ -37,9 +37,9 @@ public enum NekoInfo implements IEntityComponentProvider {
             }
         } else if (entity instanceof FisherNeko) {
             tooltip.add(Component.translatable("jade.catgirl.fisher_neko.quest",
-                    data.getIntOr(NekoServerData.FISH, 0), FisherNeko.QUEST_FISH));
+                    data.getInt(NekoServerData.FISH), FisherNeko.QUEST_FISH));
         } else if (entity instanceof Kitten) {
-            int seconds = data.getIntOr(NekoServerData.GROW_TICKS, 0) / TICKS_PER_SECOND;
+            int seconds = data.getInt(NekoServerData.GROW_TICKS) / TICKS_PER_SECOND;
             if (seconds > 0) {
                 tooltip.add(Component.translatable("jade.catgirl.kitten.grows_up",
                         String.format("%d:%02d", seconds / 60, seconds % 60)));
@@ -56,7 +56,7 @@ public enum NekoInfo implements IEntityComponentProvider {
     }
 
     @Override
-    public Identifier getUid() {
+    public ResourceLocation getUid() {
         return NekoServerData.UID;
     }
 }

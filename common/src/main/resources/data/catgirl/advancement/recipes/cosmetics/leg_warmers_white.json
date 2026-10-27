@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:leg_warmers_white"
+        "recipe": "catgirl:leg_warmers_white"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

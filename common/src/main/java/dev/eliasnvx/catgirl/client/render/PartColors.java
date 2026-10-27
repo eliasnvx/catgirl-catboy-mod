@@ -1,7 +1,7 @@
 package dev.eliasnvx.catgirl.client.render;
 
 import dev.eliasnvx.catgirl.cosmetic.Coat;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor.ARGB32;
 
 /**
  * The colors a worn item's model parts are drawn in, indexed by {@link Coat.Part#ordinal()}. Fur pieces use their
@@ -44,7 +44,7 @@ public interface PartColors {
         /** Mixes a color toward black by {@code amount}. */
         static int shade(int rgb, float amount) {
             float keep = 1.0F - amount;
-            return ARGB.color((int) (ARGB.red(rgb) * keep), (int) (ARGB.green(rgb) * keep), (int) (ARGB.blue(rgb) * keep)) & 0xFFFFFF;
+            return ARGB32.color((int) (ARGB32.red(rgb) * keep), (int) (ARGB32.green(rgb) * keep), (int) (ARGB32.blue(rgb) * keep)) & 0xFFFFFF;
         }
     }
 }

@@ -1,8 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "catgirl:squid_tentacle",
-    "minecraft:wheat"
+    {
+      "item": "catgirl:squid_tentacle"
+    },
+    {
+      "item": "minecraft:wheat"
+    }
   ],
   "result": {
     "id": "catgirl:takoyaki",

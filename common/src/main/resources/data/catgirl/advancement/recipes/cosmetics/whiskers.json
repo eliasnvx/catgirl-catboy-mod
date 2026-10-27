@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:whiskers"
+        "recipe": "catgirl:whiskers"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

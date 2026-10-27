@@ -6,8 +6,12 @@
     "SSS"
   ],
   "key": {
-    "S": "minecraft:stick",
-    "W": "#minecraft:wool"
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    }
   },
   "result": {
     "id": "catgirl:cat_bed"

@@ -8,14 +8,13 @@ import dev.eliasnvx.catgirl.registry.CatgirlItems;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.Item;
 
 import java.util.IdentityHashMap;
@@ -27,7 +26,7 @@ import java.util.function.BiFunction;
  * Draws everything a player wears. Added to every player renderer on both loaders. A worn piece uses its Blockbench
  * model when one exists ({@link GeoCosmeticRenderer}), its code model otherwise.
  */
-public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
+public final class CosmeticLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
     /** A worn item's renderers (slim arms get their own geometry), where its colors come from and its opacity. */
     private record Entry(CoatRenderer wide, CoatRenderer slim, GeoCosmeticRenderer wideGeo, GeoCosmeticRenderer slimGeo,
@@ -40,8 +39,10 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
     private static final int OPAQUE = 255;
 
     private final Map<Item, Entry> entries = new IdentityHashMap<>();
+    /** Filled per draw; no render states in 1.21.1. */
+    private final PlayerPose state = new PlayerPose();
 
-    public CosmeticLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent, EntityModelSet models) {
+    public CosmeticLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent, EntityModelSet models) {
         super(parent);
         coat(models, CatgirlItems.CAT_EARS.get(), CatModels.EARS, CatModels.EarsModel::new);
         coat(models, CatgirlItems.CAT_TAIL.get(), CatModels.TAIL, CatModels.TailModel::new);
@@ -92,13 +93,19 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
     }
 
     @Override
-    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, float yRot, float xRot) {
-        CosmeticRenderData data = ((CosmeticRenderStateAccess) state).catgirl$getCosmetics();
-        if (data == null || state.isInvisible) {
+    public void render(PoseStack poseStack, MultiBufferSource buffers, int light, AbstractClientPlayer player, float limbSwing,
+                       float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (player.isInvisible()) {
             return;
         }
-        int overlay = LivingEntityRenderer.getOverlayCoords(state, 0.0F);
-        boolean slim = state.skin.model() == PlayerModelType.SLIM;
+        state.capture(player, limbSwing, limbSwingAmount, partialTick, ageInTicks);
+        CosmeticRenderData data = CosmeticRenderData.capture(player, state);
+        if (data == null) {
+            return;
+        }
+        state.cosmetics = data;
+        int overlay = LivingEntityRenderer.getOverlayCoords(player, 0.0F);
+        boolean slim = state.slim;
         // a visible helmet covers the head slot (headphones, bows, headband); ears poke out on top by themselves
         boolean helmet = CatModels.EarsModel.wearsHelmet(state);
         // cat-ear headphones bring their own ears: the ears slot would stick out of them
@@ -111,8 +118,8 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
             if (entry != null && !hidden) {
                 int[] colors = entry.colors().of(item);
                 GeoCosmeticRenderer geo = slim ? entry.slimGeo() : entry.wideGeo();
-                if (!geo.submit(poseStack, collector, light, overlay, state, getParentModel(), colors, entry.alpha())) {
-                    (slim ? entry.slim() : entry.wide()).submit(poseStack, collector, light, overlay, state, colors);
+                if (!geo.render(poseStack, buffers, light, overlay, state, getParentModel(), colors, entry.alpha())) {
+                    (slim ? entry.slim() : entry.wide()).render(poseStack, buffers, light, overlay, state, getParentModel(), colors);
                 }
             }
         }

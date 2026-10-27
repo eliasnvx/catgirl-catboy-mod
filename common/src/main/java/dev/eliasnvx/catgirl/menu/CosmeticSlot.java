@@ -3,7 +3,9 @@ package dev.eliasnvx.catgirl.menu;
 import dev.eliasnvx.catgirl.CatgirlMod;
 import dev.eliasnvx.catgirl.cosmetic.CatSlot;
 import dev.eliasnvx.catgirl.cosmetic.CosmeticsManager;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +14,7 @@ public final class CosmeticSlot extends Slot {
 
     private static final CatSlot[] SLOTS = CatSlot.values();
     /** Outline icons of empty slots, like vanilla's armor slots. */
-    private static final Identifier[] ICONS = new Identifier[SLOTS.length];
+    private static final ResourceLocation[] ICONS = new ResourceLocation[SLOTS.length];
 
     static {
         for (CatSlot slot : SLOTS) {
@@ -32,7 +34,7 @@ public final class CosmeticSlot extends Slot {
      * The cosmetic slot behind an empty-slot icon. The creative inventory wraps slots and only passes the icon
      * through, so this is how its tooltips find out which slot is hovered.
      */
-    public static @Nullable CatSlot slotOfIcon(@Nullable Identifier icon) {
+    public static @Nullable CatSlot slotOfIcon(@Nullable ResourceLocation icon) {
         for (int i = 0; i < ICONS.length; i++) {
             if (ICONS[i].equals(icon)) {
                 return SLOTS[i];
@@ -51,8 +53,9 @@ public final class CosmeticSlot extends Slot {
         return 1;
     }
 
+    /** 1.21.1 draws empty-slot icons from the block atlas: assets/minecraft/atlases/blocks.json adds them there. */
     @Override
-    public Identifier getNoItemIcon() {
-        return ICONS[getContainerSlot()];
+    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+        return Pair.of(InventoryMenu.BLOCK_ATLAS, ICONS[getContainerSlot()]);
     }
 }

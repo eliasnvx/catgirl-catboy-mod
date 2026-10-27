@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:cat_tail_black"
+        "recipe": "catgirl:cat_tail_black"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

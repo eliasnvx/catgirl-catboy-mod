@@ -92,7 +92,7 @@ final class ChaseYarnGoal extends Goal {
         cooldown = BAT_COOLDOWN;
         double angle = Math.toRadians(mob.getYRot() + 90) + (mob.getRandom().nextDouble() - 0.5) * Math.PI;
         target.push(Math.cos(angle) * BAT_PUSH, BAT_HOP, Math.sin(angle) * BAT_PUSH);
-        target.needsSync = true;
+        target.hurtMarked = true;
         mob.level().playSound(null, target, SoundEvents.WOOL_HIT, SoundSource.NEUTRAL, 0.6F, 1.3F);
     }
 

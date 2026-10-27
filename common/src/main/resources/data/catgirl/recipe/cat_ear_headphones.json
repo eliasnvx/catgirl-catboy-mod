@@ -6,9 +6,15 @@
     "N N"
   ],
   "key": {
-    "I": "minecraft:iron_ingot",
-    "W": "minecraft:pink_wool",
-    "N": "minecraft:note_block"
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "W": {
+      "item": "minecraft:pink_wool"
+    },
+    "N": {
+      "item": "minecraft:note_block"
+    }
   },
   "result": {
     "id": "catgirl:cat_ear_headphones"

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:bubble_tea"
+        "recipe": "catgirl:bubble_tea"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

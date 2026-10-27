@@ -29,7 +29,7 @@ public final class NekoData {
     /** Hands an item to a player, or drops it at their feet if the inventory is full. */
     public static void give(ServerPlayer player, ItemStack stack) {
         if (!player.getInventory().add(stack)) {
-            player.spawnAtLocation(player.level(), stack);
+            player.spawnAtLocation(stack);
         }
     }
 

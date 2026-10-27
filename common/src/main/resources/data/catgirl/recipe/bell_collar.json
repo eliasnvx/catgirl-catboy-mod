@@ -6,9 +6,15 @@
     " N "
   ],
   "key": {
-    "S": "minecraft:string",
-    "L": "minecraft:leather",
-    "N": "minecraft:gold_nugget"
+    "S": {
+      "item": "minecraft:string"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "N": {
+      "item": "minecraft:gold_nugget"
+    }
   },
   "result": {
     "id": "catgirl:bell_collar"

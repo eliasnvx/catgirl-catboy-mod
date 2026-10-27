@@ -23,15 +23,14 @@ public final class CatgirlBlocks {
     public static final RegistrySupplier<Block> CARDBOARD_BOX = register("cardboard_box", CardboardBoxBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(0.5F).sound(SoundType.WOOL).noOcclusion().ignitedByLava());
     public static final RegistrySupplier<Block> CATNIP = register("catnip", CatnipBlock::new,
-            // noOcclusion: in 26.3 noCollision no longer implies it, and an occluding plant hides the grass under it
-            BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollision().noOcclusion().instabreak()
-                    .sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.POPPED));
+            BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().noOcclusion().instabreak()
+                    .sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY));
 
     private CatgirlBlocks() {
     }
 
     private static RegistrySupplier<Block> register(String name, Function<BlockBehaviour.Properties, Block> factory,
                                                     BlockBehaviour.Properties props) {
-        return REGISTER.register(name, () -> factory.apply(props.setId(ResourceKey.create(Registries.BLOCK, CatgirlMod.id(name)))));
+        return REGISTER.register(name, () -> factory.apply(props));
     }
 }

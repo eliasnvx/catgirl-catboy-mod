@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:onigiri"
+        "recipe": "catgirl:onigiri"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

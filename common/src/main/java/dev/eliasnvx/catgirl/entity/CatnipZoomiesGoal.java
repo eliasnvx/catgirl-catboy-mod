@@ -31,7 +31,7 @@ final class CatnipZoomiesGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return mob.hasEffect(CatgirlEffects.CATNIP.asHolder());
+        return mob.hasEffect(CatgirlEffects.CATNIP);
     }
 
     @Override

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:bell_headband"
+        "recipe": "catgirl:bell_headband"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

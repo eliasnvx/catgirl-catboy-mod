@@ -3,7 +3,7 @@ package dev.eliasnvx.catgirl.mixin.client;
 import dev.eliasnvx.catgirl.client.CosmeticsPanel;
 import dev.eliasnvx.catgirl.menu.CosmeticSlot;
 import dev.eliasnvx.catgirl.menu.CosmeticsLayout;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.inventory.Slot;
@@ -41,15 +41,15 @@ public abstract class CreativeModeInventoryScreenMixin {
     }
 
     @Inject(method = "hasClickedOutside", at = @At("RETURN"), cancellable = true)
-    private void catgirl$panelIsInside(double mouseX, double mouseY, int left, int top, CallbackInfoReturnable<Boolean> cir) {
+    private void catgirl$panelIsInside(double mouseX, double mouseY, int left, int top, int button, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValueZ() && CosmeticsPanel.contains((AbstractContainerScreen<?>) (Object) this, mouseX, mouseY)) {
             hasClickedOutside = false;
             cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = "extractBackground", at = @At("TAIL"))
-    private void catgirl$cosmeticsPanel(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+    @Inject(method = "renderBg", at = @At("TAIL"))
+    private void catgirl$cosmeticsPanel(GuiGraphics g, float partialTick, int mouseX, int mouseY, CallbackInfo ci) {
         CosmeticsPanel.extractBackground((AbstractContainerScreen<?>) (Object) this, g);
     }
 }

@@ -7,19 +7,19 @@ import dev.eliasnvx.catgirl.cosmetic.Coat;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.PlayerModel;
+import dev.eliasnvx.catgirl.client.render.PlayerPose;
 import dev.eliasnvx.catgirl.client.render.entity.NekoRenderState;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ArmorItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,8 +33,8 @@ import static dev.eliasnvx.catgirl.cosmetic.Coat.Part.TUFT;
 
 /**
  * Placeholder ear and tail geometry built in code (pixel masks + coat parts), until the GeckoLib models from
- * Blockbench exist. Each model is a {@link PlayerModel} with a cleared mesh plus parts under head/body, so vanilla
- * posing moves them; procedural animation runs in {@code setupAnim}. Units are model pixels.
+ * Blockbench exist. Each model is a {@link PlayerModel} with an empty mesh plus parts under head/body; it copies the
+ * wearer's pose ({@code copyPropertiesTo}) and procedural animation runs in {@code setupAnim}. Units are model pixels.
  */
 public final class CatModels {
 
@@ -102,22 +102,32 @@ public final class CatModels {
 
     /** Whether a baked layer has any boxes of this part (skips submitting empty models). */
     public static boolean hasPart(ModelPart root, Coat.Part part) {
-        for (ModelPart child : root.getAllParts()) {
-            if (child.hasChild(FurBuilder.holderName(part))) {
-                return true;
-            }
-        }
-        return false;
+        return root.getAllParts().anyMatch(child -> child.hasChild(FurBuilder.holderName(part)));
     }
 
     private static MeshDefinition emptyPlayerMesh() {
         return emptyPlayerMesh(false);
     }
 
-    /** Slim meshes put the arms where slim skins have them (3 px wide arms, half a pixel lower). */
+    /**
+     * The player mesh's parts with their pivots and no boxes. Slim meshes put the arms where slim skins have them (3 px
+     * wide arms, half a pixel lower); the wearer's pose is copied over them anyway.
+     */
     private static MeshDefinition emptyPlayerMesh(boolean slim) {
-        MeshDefinition mesh = PlayerModel.createMesh(CubeDeformation.NONE, slim);
-        mesh.getRoot().clearRecursively();
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        for (String name : new String[]{"head", "hat", "body", "jacket", "ear", "cloak"}) {
+            pivot(root, name, PartPose.ZERO);
+        }
+        float armY = slim ? 2.5F : 2.0F;
+        pivot(root, "right_arm", PartPose.offset(-5.0F, armY, 0.0F));
+        pivot(root, "right_sleeve", PartPose.offset(-5.0F, armY, 0.0F));
+        pivot(root, "left_arm", PartPose.offset(5.0F, armY, 0.0F));
+        pivot(root, "left_sleeve", PartPose.offset(5.0F, armY, 0.0F));
+        pivot(root, "right_leg", PartPose.offset(-1.9F, 12.0F, 0.0F));
+        pivot(root, "right_pants", PartPose.offset(-1.9F, 12.0F, 0.0F));
+        pivot(root, "left_leg", PartPose.offset(1.9F, 12.0F, 0.0F));
+        pivot(root, "left_pants", PartPose.offset(1.9F, 12.0F, 0.0F));
         return mesh;
     }
 
@@ -563,21 +573,26 @@ public final class CatModels {
 
     // ================================================================== models
 
-    /** Base: poses like the wearer and shows one coat part of the layer. */
-    public static class FurModel extends PlayerModel {
+    /** Base: poses like the wearer (the caller copies the pose over) and shows one coat part of the layer. */
+    public static class FurModel extends PlayerModel<AbstractClientPlayer> {
+
+        private final ModelPart root;
 
         public FurModel(ModelPart root, Coat.Part part) {
             super(root, false);
+            this.root = root;
             FurBuilder.show(root, part);
+        }
+
+        public ModelPart root() {
+            return root;
         }
 
         /**
          * Hides the skin's outer layer parts: cosmetics never draw there, and mods that put the skin's 3D layers into
          * every player model (3D Skin Layers) would otherwise draw the wearer's outer skin with the fur texture.
          */
-        @Override
-        public void setupAnim(AvatarRenderState state) {
-            super.setupAnim(state);
+        public void setupAnim(PlayerPose state) {
             hat.visible = false;
             jacket.visible = false;
             leftSleeve.visible = false;
@@ -607,7 +622,7 @@ public final class CatModels {
         }
 
         @Override
-        public void setupAnim(AvatarRenderState state) {
+        public void setupAnim(PlayerPose state) {
             super.setupAnim(state);
             CosmeticRenderData data = CosmeticRenderData.of(state);
             float t = state.ageInTicks * TWITCH_SPEED / Mth.PI + data.phase();
@@ -621,17 +636,13 @@ public final class CatModels {
             leftEar.xRot = -left * 0.5F - flat * FLAT_BACK;
             rightEar.xRot = -right * 0.5F - flat * FLAT_BACK;
             float lift = wearsHelmet(state) ? HELMET_LIFT : 0.0F;
-            leftEar.y = leftEar.getInitialPose().y() - lift;
-            rightEar.y = rightEar.getInitialPose().y() - lift;
+            leftEar.y = leftEar.getInitialPose().y - lift;
+            rightEar.y = rightEar.getInitialPose().y - lift;
         }
 
         /** Head armor drawn by the armor layer (not a carved pumpkin or a skull, which have their own shapes). */
-        public static boolean wearsHelmet(AvatarRenderState state) {
-            if (state.headEquipment.isEmpty()) {
-                return false;
-            }
-            Equippable equippable = state.headEquipment.get(DataComponents.EQUIPPABLE);
-            return equippable != null && equippable.slot() == EquipmentSlot.HEAD && equippable.assetId().isPresent();
+        public static boolean wearsHelmet(PlayerPose state) {
+            return state.headEquipment.getItem() instanceof ArmorItem armor && armor.getEquipmentSlot() == EquipmentSlot.HEAD;
         }
     }
 
@@ -667,7 +678,7 @@ public final class CatModels {
         }
 
         @Override
-        public void setupAnim(AvatarRenderState state) {
+        public void setupAnim(PlayerPose state) {
             super.setupAnim(state);
             CosmeticRenderData data = CosmeticRenderData.of(state);
             float amplitude = IDLE_SWAY + WALK_SWAY * data.walkAmount();
@@ -692,7 +703,7 @@ public final class CatModels {
         }
 
         @Override
-        public void setupAnim(AvatarRenderState state) {
+        public void setupAnim(PlayerPose state) {
             super.setupAnim(state);
             CosmeticRenderData data = CosmeticRenderData.of(state);
             bell.xRot = Mth.sin(state.walkAnimationPos * 0.6662F * 2) * WALK_SWING * data.walkAmount();
@@ -704,7 +715,7 @@ public final class CatModels {
      * Ears or tail on a cat-person mob (the humanoid rig): the same geometry and coat parts as the
      * players' cosmetics, posed like the mob's own model, with the same twitch, sway and flattening.
      */
-    public static final class NekoFurModel extends HumanoidModel<NekoRenderState> {
+    public static final class NekoFurModel extends HumanoidModel<LivingEntity> {
         private static final float TWITCH = 0.35F;
         private static final float TWITCH_SPEED = 0.35F;
         private static final float TWITCH_SHARPNESS = 12.0F;
@@ -733,9 +744,8 @@ public final class CatModels {
             segments = chain.toArray(new ModelPart[0]);
         }
 
-        @Override
+        /** After the mob model's pose was copied over ({@code copyPropertiesTo}). */
         public void setupAnim(NekoRenderState state) {
-            super.setupAnim(state);
             float phase = state.phase;
             if (leftEar != null && rightEar != null) {
                 float t = state.ageInTicks * TWITCH_SPEED / Mth.PI + phase;

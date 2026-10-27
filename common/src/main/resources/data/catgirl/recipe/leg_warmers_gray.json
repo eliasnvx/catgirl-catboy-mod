@@ -7,8 +7,12 @@
     "W W"
   ],
   "key": {
-    "W": "minecraft:gray_wool",
-    "S": "minecraft:string"
+    "W": {
+      "item": "minecraft:gray_wool"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
   },
   "result": {
     "id": "catgirl:leg_warmers",

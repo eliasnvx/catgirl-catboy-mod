@@ -5,7 +5,7 @@ import dev.eliasnvx.catgirl.CatgirlAdvancements;
 import dev.eliasnvx.catgirl.CatgirlEvents;
 import dev.eliasnvx.catgirl.CatgirlMod;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -14,7 +14,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Map;
@@ -28,8 +28,8 @@ import java.util.WeakHashMap;
 public final class SetBonuses {
 
     private static final CatSet[] SETS = CatSet.values();
-    private static final Identifier JUMP_MODIFIER = CatgirlMod.id("full_neko_jump");
-    private static final Identifier SAFE_FALL_MODIFIER = CatgirlMod.id("alley_cat_safe_fall");
+    private static final ResourceLocation JUMP_MODIFIER = CatgirlMod.id("full_neko_jump");
+    private static final ResourceLocation SAFE_FALL_MODIFIER = CatgirlMod.id("alley_cat_safe_fall");
     private static final int LANDING_PARTICLES = 6;
     private static final double LANDING_SPREAD = 0.3;
     private static final float LANDING_VOLUME = 0.6F;
@@ -90,7 +90,7 @@ public final class SetBonuses {
         return 1 << set.ordinal();
     }
 
-    private static void modifier(AttributeInstance attribute, Identifier id, double amount, boolean on) {
+    private static void modifier(AttributeInstance attribute, ResourceLocation id, double amount, boolean on) {
         if (attribute == null) {
             return;
         }

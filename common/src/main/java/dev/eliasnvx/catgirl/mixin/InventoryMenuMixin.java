@@ -8,7 +8,7 @@ import dev.eliasnvx.catgirl.menu.CosmeticsLayout;
 import dev.eliasnvx.catgirl.menu.InventoryMenuCosmetics;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractCraftingMenu;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -25,13 +25,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * menu code on both sides. Shift-click puts a cosmetic from the inventory into its empty slot.
  */
 @Mixin(InventoryMenu.class)
-public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements InventoryMenuCosmetics {
+public abstract class InventoryMenuMixin extends AbstractContainerMenu implements InventoryMenuCosmetics {
 
     @Unique
     private int catgirl$cosmeticStart;
 
     private InventoryMenuMixin() {
-        super(null, 0, 2, 2);
+        super(null, 0);
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))

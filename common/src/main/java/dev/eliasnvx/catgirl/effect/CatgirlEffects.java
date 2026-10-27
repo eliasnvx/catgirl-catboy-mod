@@ -24,7 +24,7 @@ public final class CatgirlEffects {
     /** Well Rested: +15% walking speed for a minute. */
     private static final double WELL_RESTED_SPEED = 0.15;
 
-    /** Well Rested (cat bed nap). Pass {@code .asHolder()} to effect instances. */
+    /** Well Rested (cat bed nap). Effect instances take the supplier itself: it is a Holder. */
     public static final RegistrySupplier<MobEffect> WELL_RESTED = REGISTER.register("well_rested", () ->
             new Simple(MobEffectCategory.BENEFICIAL, WELL_RESTED_COLOR).addAttributeModifier(Attributes.MOVEMENT_SPEED,
                     CatgirlMod.id("effect.well_rested"), WELL_RESTED_SPEED, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
@@ -45,7 +45,7 @@ public final class CatgirlEffects {
 
     /**
      * Random tumbles: every couple of seconds a player under catnip may tumble a step to a random side with
-     * a little hop. Movement is client-driven for players, so the push is sent to the client (needsSync).
+     * a little hop. Movement is client-driven for players, so the push is sent to the client (hurtMarked).
      */
     static final class Catnip extends MobEffect {
         private static final int ROLL_INTERVAL = 40;
@@ -64,12 +64,15 @@ public final class CatgirlEffects {
         }
 
         @Override
-        public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
+        public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+            if (!(entity.level() instanceof ServerLevel level)) {
+                return true;
+            }
             RandomSource random = entity.getRandom();
             if (entity instanceof Player player && player.onGround() && !player.isPassenger() && random.nextFloat() < ROLL_CHANCE) {
                 double angle = random.nextDouble() * Math.PI * 2;
                 player.push(Math.cos(angle) * ROLL_PUSH, ROLL_HOP, Math.sin(angle) * ROLL_PUSH);
-                player.needsSync = true;
+                player.hurtMarked = true;
                 level.sendParticles(ParticleTypes.HAPPY_VILLAGER, player.getX(), player.getY() + 0.3, player.getZ(),
                         ROLL_PARTICLES, 0.3, 0.1, 0.3, 0.0);
             }

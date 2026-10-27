@@ -17,7 +17,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -28,8 +28,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -94,7 +96,7 @@ public class FisherNeko extends NekoMob {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
                                         @Nullable SpawnGroupData data) {
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.FISHING_ROD));
         setDropChance(EquipmentSlot.MAINHAND, 0.0F);
@@ -113,26 +115,27 @@ public class FisherNeko extends NekoMob {
             int taken = Math.min(held.getCount(), QUEST_FISH - count);
             held.consume(taken, player);
             count += taken;
-            playSound(SoundEvents.GENERIC_EAT.value(), 0.8F, 1.2F);
+            playSound(SoundEvents.GENERIC_EAT, 0.8F, 1.2F);
             if (count >= QUEST_FISH) {
                 count = 0;
                 NekoData.give(serverPlayer, NekoData.rarePiece(this));
                 ((ServerLevel) level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, getX(), getEyeY() + 0.3, getZ(), 10, 0.4, 0.3, 0.4, 0.0);
-                player.sendOverlayMessage(Component.translatable("message.catgirl.fisher_neko.reward"));
+                player.displayClientMessage(Component.translatable("message.catgirl.fisher_neko.reward"), true);
             } else {
-                player.sendOverlayMessage(Component.translatable("message.catgirl.fisher_neko.progress", count, QUEST_FISH));
+                player.displayClientMessage(Component.translatable("message.catgirl.fisher_neko.progress", count, QUEST_FISH), true);
             }
             delivered.put(player.getUUID(), count);
         } else {
-            player.sendOverlayMessage(Component.translatable("message.catgirl.fisher_neko.quest", count, QUEST_FISH));
+            player.displayClientMessage(Component.translatable("message.catgirl.fisher_neko.quest", count, QUEST_FISH), true);
             playAmbientSound();
         }
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
-        super.customServerAiStep(level);
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        ServerLevel level = (ServerLevel) level();
         if (showCatch > 0 && --showCatch == 0) {
             setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
         }
@@ -146,17 +149,19 @@ public class FisherNeko extends NekoMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public void addAdditionalSaveData(CompoundTag output) {
         super.addAdditionalSaveData(output);
-        ValueOutput.TypedOutputList<String> list = output.list("catgirl_delivered", com.mojang.serialization.Codec.STRING);
-        delivered.forEach((uuid, count) -> list.add(uuid + "=" + count));
+        ListTag list = new ListTag();
+        delivered.forEach((uuid, count) -> list.add(StringTag.valueOf(uuid + "=" + count)));
+        output.put("catgirl_delivered", list);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    public void readAdditionalSaveData(CompoundTag input) {
         super.readAdditionalSaveData(input);
         delivered.clear();
-        input.listOrEmpty("catgirl_delivered", com.mojang.serialization.Codec.STRING).forEach(entry -> {
+        input.getList("catgirl_delivered", Tag.TAG_STRING).forEach(tag -> {
+            String entry = tag.getAsString();
             int split = entry.indexOf('=');
             if (split > 0) {
                 delivered.put(UUID.fromString(entry.substring(0, split)), Integer.parseInt(entry.substring(split + 1)));

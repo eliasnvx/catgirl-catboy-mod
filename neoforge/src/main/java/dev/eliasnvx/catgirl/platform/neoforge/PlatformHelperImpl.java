@@ -17,7 +17,7 @@ public final class PlatformHelperImpl {
 
     private static final Supplier<AttachmentType<CosmeticInventory>> COSMETICS = ATTACHMENTS.register("cosmetics",
             () -> AttachmentType.builder(() -> CosmeticInventory.EMPTY)
-                    .serialize(CosmeticInventory.CODEC.fieldOf("cosmetics"))
+                    .serialize(CosmeticInventory.CODEC.fieldOf("cosmetics").codec())
                     .copyOnDeath()
                     .build());
 

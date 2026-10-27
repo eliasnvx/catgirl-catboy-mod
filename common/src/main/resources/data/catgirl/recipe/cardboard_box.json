@@ -6,7 +6,9 @@
     "PPP"
   ],
   "key": {
-    "P": "minecraft:paper"
+    "P": {
+      "item": "minecraft:paper"
+    }
   },
   "result": {
     "id": "catgirl:cardboard_box"

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:paw_slippers_neon"
+        "recipe": "catgirl:paw_slippers_neon"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

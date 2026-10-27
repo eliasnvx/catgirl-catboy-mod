@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:ear_bows"
+        "recipe": "catgirl:ear_bows"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

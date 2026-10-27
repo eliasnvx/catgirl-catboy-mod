@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "catgirl:velvet_choker"
+        "recipe": "catgirl:velvet_choker"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
