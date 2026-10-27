@@ -1,7 +1,7 @@
 {
   "item.catgirl.cat_ears": "Cat Ears",
   "item.catgirl.cat_tail": "Cat Tail",
-  "itemGroup.catgirl": "Catgirl Mod",
+  "itemGroup.catgirl": "Catgirl & Catboy Mod",
   "tooltip.catgirl.coat": "Coat: %s",
   "tooltip.catgirl.slot": "Worn on: %s",
   "coat.catgirl.black": "Black",
@@ -30,7 +30,7 @@
   "key.catgirl.meow": "Meow",
   "subtitles.catgirl.player.meow": "Player meows",
   "subtitles.catgirl.item.bell_collar.jingle": "Bell jingles",
-  "advancements.catgirl.root.title": "Catgirl Mod",
+  "advancements.catgirl.root.title": "Catgirl & Catboy Mod",
   "advancements.catgirl.root.description": "Get something cat-shaped to wear",
   "advancements.catgirl.first_meow.title": "First Meow",
   "advancements.catgirl.first_meow.description": "Press the meow key. Yes, really",

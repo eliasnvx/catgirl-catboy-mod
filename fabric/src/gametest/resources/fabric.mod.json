@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "catgirl-test",
   "version": "0.0.0",
-  "name": "Catgirl Mod GameTests",
+  "name": "Catgirl & Catboy Mod GameTests",
   "environment": "*",
   "entrypoints": {
     "client": [

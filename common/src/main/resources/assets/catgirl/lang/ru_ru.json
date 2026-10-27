@@ -1,7 +1,7 @@
 {
   "item.catgirl.cat_ears": "Кошачьи ушки",
   "item.catgirl.cat_tail": "Кошачий хвост",
-  "itemGroup.catgirl": "Catgirl Mod",
+  "itemGroup.catgirl": "Catgirl & Catboy Mod",
   "tooltip.catgirl.coat": "Окрас: %s",
   "tooltip.catgirl.slot": "Слот: %s",
   "coat.catgirl.black": "чёрный",
@@ -30,7 +30,7 @@
   "key.catgirl.meow": "Мяу",
   "subtitles.catgirl.player.meow": "Игрок мяукает",
   "subtitles.catgirl.item.bell_collar.jingle": "Звенит колокольчик",
-  "advancements.catgirl.root.title": "Catgirl Mod",
+  "advancements.catgirl.root.title": "Catgirl & Catboy Mod",
   "advancements.catgirl.root.description": "Найдите что-нибудь кошачье, что можно надеть",
   "advancements.catgirl.first_meow.title": "Первое мяу",
   "advancements.catgirl.first_meow.description": "Нажмите клавишу мяу. Да, правда",
