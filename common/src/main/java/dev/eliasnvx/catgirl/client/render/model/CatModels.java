@@ -284,7 +284,7 @@ public final class CatModels {
         b.box(MAIN, x0 - g, GLOVE_TOP, -2 - g, w + 2 * g, ARM_BOTTOM - GLOVE_TOP + g, 4 + 2 * g);
         b.box(TUFT, x0 - g - 0.2F, GLOVE_TOP - 0.5F, -2 - g - 0.2F, w + 2 * g + 0.4F, 1.0F, 4 + 2 * g + 0.4F); // cuff
         toes(b, x0 - g, w + 2 * g, ARM_BOTTOM + g, -2 - g, 0.5F);
-        pads(b, x0 + w / 2, ARM_BOTTOM - 1.6F, -2 - g - 0.15F, 1.0F);
+        pads(b, x0 + w / 2, ARM_BOTTOM - 1.6F, -2 - g - 0.15F, 1.0F, true);
     }
 
     private static void mitten(FurBuilder b, float x0, float w) {
@@ -295,7 +295,7 @@ public final class CatModels {
         b.box(MAIN, x0 - g - 0.3F, MITTEN_TOP + 1.6F, -1.0F, 0.3F, 1.2F, 2.0F);
         b.box(MAIN, x0 + w + g, MITTEN_TOP + 2.6F, -0.6F, 0.3F, 1.0F, 1.6F);
         toes(b, x0 - g, w + 2 * g, ARM_BOTTOM + g, -2 - g, 0.7F);
-        pads(b, x0 + w / 2, ARM_BOTTOM - 1.8F, -2 - g - 0.15F, 1.25F);
+        pads(b, x0 + w / 2, ARM_BOTTOM - 1.8F, -2 - g - 0.15F, 1.25F, true);
     }
 
     /** Three round toes along the front of a paw's underside. */
@@ -306,13 +306,20 @@ public final class CatModels {
         }
     }
 
-    /** A pink paw print: the big pad and three beans above it, on a front face at depth {@code z}. */
-    private static void pads(FurBuilder b, float centerX, float y, float z, float scale) {
+    /**
+     * A pink paw print on a front face at depth {@code z}: the big pad at {@code y} and three beans above it, or below
+     * it with {@code toesDown} (a hand: the beans sit at the fingertips, the pad toward the wrist). Both take the same
+     * space; the middle bean reaches furthest.
+     */
+    private static void pads(FurBuilder b, float centerX, float y, float z, float scale, boolean toesDown) {
         float pad = 1.6F * scale;
-        b.box(INNER, centerX - pad / 2, y, z, pad, 1.0F * scale, 0.15F);
+        float padY = toesDown ? y - 1.15F * scale : y;
+        b.box(INNER, centerX - pad / 2, padY, z, pad, 1.0F * scale, 0.15F);
         float bean = 0.5F * scale;
+        float beanY = toesDown ? y + 0.25F * scale : y - 0.9F * scale;
+        float middle = (toesDown ? 0.25F : -0.25F) * scale;
         for (int i = -1; i <= 1; i++) {
-            b.box(INNER, centerX + i * 0.75F * scale - bean / 2, y - 0.9F * scale - (i == 0 ? 0.25F * scale : 0.0F), z, bean, bean, 0.15F);
+            b.box(INNER, centerX + i * 0.75F * scale - bean / 2, beanY + (i == 0 ? middle : 0.0F), z, bean, bean, 0.15F);
         }
     }
 
@@ -355,7 +362,7 @@ public final class CatModels {
             float s = 0.55F;
             b.box(PATCH, -2 - s, 5.4F, -2 - s, 4 + 2 * s, 0.45F, 4 + 2 * s);  // knit stripes
             b.box(PATCH, -2 - s, 8.4F, -2 - s, 4 + 2 * s, 0.45F, 4 + 2 * s);
-            pads(b, 0.0F, 7.0F, -2 - s - 0.1F, 1.0F);
+            pads(b, 0.0F, 7.0F, -2 - s - 0.1F, 1.0F, false);
             b.build();
         }
         return LayerDefinition.create(mesh, TEXTURE_SIZE, TEXTURE_SIZE);
