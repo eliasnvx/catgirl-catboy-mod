@@ -6,8 +6,6 @@ Every worn piece is drawn by a code model until a Blockbench/GeckoLib model for 
 - `<item>.geo.json`: the model (`paw_gloves` and `paw_mittens` also have `<item>_slim.geo.json` for slim arms)
 - `<item>.png`: the fur texture the code models use, 64x64, grayscale
 
-Regenerate them (overwrites this folder) with `./gradlew :common:exportBlockbenchStarters`.
-
 ## Setup (once)
 
 1. Blockbench: <https://www.blockbench.net> (or `brew install --cask blockbench`).

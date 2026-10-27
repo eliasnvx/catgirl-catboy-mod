@@ -15,30 +15,7 @@ dependencies {
     compileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}") { transitive false }
 }
 
-// Dev tool: code cosmetic models -> starting Blockbench/GeckoLib files in art/blockbench (art/blockbench/README.md)
-tasks.register("exportBlockbenchStarters", JavaExec) {
-    group = "catgirl"
-    description = "Exports every code cosmetic model as a starting .geo.json + fur texture into art/blockbench"
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = "dev.eliasnvx.catgirl.tools.BlockbenchStarterExport"
-    args rootProject.file("art/blockbench").absolutePath, rootProject.projectDir.absolutePath
-    // Minecraft's logger writes logs/ into the working directory: keep it out of the source tree
-    workingDir = layout.buildDirectory.dir("blockbench-export").get().asFile
-    doFirst { workingDir.mkdirs() }
-}
-
-// Dev tool: whole characters in full outfits as Blockbench projects in art/characters (art/characters/README.md)
-tasks.register("exportCharacters", JavaExec) {
-    group = "catgirl"
-    description = "Exports catgirl/catboy characters in full outfits as .bbmodel projects into art/characters"
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = "dev.eliasnvx.catgirl.tools.CharacterExport"
-    args rootProject.file("art/characters").absolutePath, rootProject.projectDir.absolutePath
-    workingDir = layout.buildDirectory.dir("character-export").get().asFile
-    doFirst { workingDir.mkdirs() }
-}
-
-// common/src/test holds the dev tools above, no unit tests yet
-tasks.named("test") {
-    failOnNoDiscoveredTests = false
+// Optional local build additions
+if (file("tools.gradle").exists()) {
+    apply from: "tools.gradle"
 }

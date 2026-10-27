@@ -48,8 +48,5 @@ The *Animate* tab works too, if you want several poses in one file.
 `renders/` holds transparent PNGs of every character in six poses (`stand`, `wave`, `run`, `sit`, `cheer`,
 `look_back`) plus a `lineup` of all four, each with a soft ground shadow and as `*_noshadow`.
 
-## Regenerate
-
-`./gradlew :common:exportCharacters` writes the four files above again from the code models (after the models or
-colors change). It overwrites only these four names: save your posed versions under other names
+The four project files above get replaced when the outfits change: save your posed versions under other names
 (*File → Save Project As*) so they stay.

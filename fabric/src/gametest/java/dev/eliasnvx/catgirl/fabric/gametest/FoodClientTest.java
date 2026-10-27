@@ -93,7 +93,7 @@ public final class FoodClientTest implements FabricClientGameTest {
             });
             context.waitTicks(SETTLE);
 
-            // recipe book: holding an ingredient opens the recipe, like vanilla (tools/gen_recipe_unlocks.py)
+            // recipe book: holding an ingredient opens the recipe, like vanilla
             world.getServer().runOnServer(server -> {
                 ServerPlayer player = player(server);
                 player.getInventory().add(new ItemStack(Items.WOOL.orange()));
