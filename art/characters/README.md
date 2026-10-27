@@ -43,6 +43,11 @@ The *Animate* tab works too, if you want several poses in one file.
 - *View → Record GIF…* for a turntable or an animation from the *Animate* tab.
 - Other software: *File → Export → Export glTF Model* (or OBJ) and open it in Blender.
 
+## Ready-made renders
+
+`renders/` holds transparent PNGs of every character in six poses (`stand`, `wave`, `run`, `sit`, `cheer`,
+`look_back`) plus a `lineup` of all four, each with a soft ground shadow and as `*_noshadow`.
+
 ## Regenerate
 
 `./gradlew :common:exportCharacters` writes the four files above again from the code models (after the models or
