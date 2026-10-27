@@ -1,5 +1,6 @@
 package dev.eliasnvx.catgirl.entity.neko;
 
+import dev.eliasnvx.catgirl.item.Stacks;
 import dev.eliasnvx.catgirl.cosmetic.Coat;
 import dev.eliasnvx.catgirl.registry.CatgirlTags;
 import net.minecraft.core.BlockPos;
@@ -17,7 +18,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -28,8 +29,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -72,9 +75,9 @@ public class FisherNeko extends NekoMob {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(FISHING, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(FISHING, false);
     }
 
     /** Sitting at the water with the line out (the client draws it sitting). */
@@ -94,12 +97,12 @@ public class FisherNeko extends NekoMob {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
-                                        @Nullable SpawnGroupData data) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+                                        @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.FISHING_ROD));
         setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         setDropChance(EquipmentSlot.OFFHAND, 0.0F);
-        return super.finalizeSpawn(level, difficulty, reason, data);
+        return super.finalizeSpawn(level, difficulty, reason, data, tag);
     }
 
     @Override
@@ -111,28 +114,29 @@ public class FisherNeko extends NekoMob {
         int count = delivered.getOrDefault(player.getUUID(), 0);
         if (held.is(CatgirlTags.RAW_FISH)) {
             int taken = Math.min(held.getCount(), QUEST_FISH - count);
-            held.consume(taken, player);
+            Stacks.consume(held, taken, player);
             count += taken;
-            playSound(SoundEvents.GENERIC_EAT.value(), 0.8F, 1.2F);
+            playSound(SoundEvents.GENERIC_EAT, 0.8F, 1.2F);
             if (count >= QUEST_FISH) {
                 count = 0;
                 NekoData.give(serverPlayer, NekoData.rarePiece(this));
                 ((ServerLevel) level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, getX(), getEyeY() + 0.3, getZ(), 10, 0.4, 0.3, 0.4, 0.0);
-                player.sendOverlayMessage(Component.translatable("message.catgirl.fisher_neko.reward"));
+                player.displayClientMessage(Component.translatable("message.catgirl.fisher_neko.reward"), true);
             } else {
-                player.sendOverlayMessage(Component.translatable("message.catgirl.fisher_neko.progress", count, QUEST_FISH));
+                player.displayClientMessage(Component.translatable("message.catgirl.fisher_neko.progress", count, QUEST_FISH), true);
             }
             delivered.put(player.getUUID(), count);
         } else {
-            player.sendOverlayMessage(Component.translatable("message.catgirl.fisher_neko.quest", count, QUEST_FISH));
+            player.displayClientMessage(Component.translatable("message.catgirl.fisher_neko.quest", count, QUEST_FISH), true);
             playAmbientSound();
         }
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
-        super.customServerAiStep(level);
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        ServerLevel level = (ServerLevel) level();
         if (showCatch > 0 && --showCatch == 0) {
             setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
         }
@@ -146,17 +150,19 @@ public class FisherNeko extends NekoMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public void addAdditionalSaveData(CompoundTag output) {
         super.addAdditionalSaveData(output);
-        ValueOutput.TypedOutputList<String> list = output.list("catgirl_delivered", com.mojang.serialization.Codec.STRING);
-        delivered.forEach((uuid, count) -> list.add(uuid + "=" + count));
+        ListTag list = new ListTag();
+        delivered.forEach((uuid, count) -> list.add(StringTag.valueOf(uuid + "=" + count)));
+        output.put("catgirl_delivered", list);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    public void readAdditionalSaveData(CompoundTag input) {
         super.readAdditionalSaveData(input);
         delivered.clear();
-        input.listOrEmpty("catgirl_delivered", com.mojang.serialization.Codec.STRING).forEach(entry -> {
+        input.getList("catgirl_delivered", Tag.TAG_STRING).forEach(tag -> {
+            String entry = tag.getAsString();
             int split = entry.indexOf('=');
             if (split > 0) {
                 delivered.put(UUID.fromString(entry.substring(0, split)), Integer.parseInt(entry.substring(split + 1)));

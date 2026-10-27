@@ -1,11 +1,11 @@
 {
   "wants": {
     "id": "minecraft:emerald",
-    "count": 2
+    "Count": 2
   },
   "gives": {
     "id": "catgirl:tuna_can",
-    "count": 3
+    "Count": 3
   },
   "max_uses": 8,
   "xp": 3,

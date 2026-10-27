@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:crafting_dye",
-  "dye": "#minecraft:dyes",
-  "group": "catgirl_dyed",
-  "result": {
-    "id": "catgirl:velvet_choker"
-  },
-  "target": "catgirl:velvet_choker"
-}

@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "catgirl:fish_sticks_from_campfire_cooking"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_raw_fish_sticks": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "catgirl:raw_fish_sticks"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_raw_fish_sticks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "catgirl:fish_sticks_from_campfire_cooking"
+    ]
+  }
+}

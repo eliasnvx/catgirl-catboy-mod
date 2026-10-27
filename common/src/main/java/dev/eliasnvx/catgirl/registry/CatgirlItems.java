@@ -8,6 +8,7 @@ import dev.eliasnvx.catgirl.block.CatgirlBlocks;
 import dev.eliasnvx.catgirl.effect.CatgirlEffects;
 import dev.eliasnvx.catgirl.item.CatgirlFoods;
 import dev.eliasnvx.catgirl.item.CatnipItem;
+import dev.eliasnvx.catgirl.item.DyeableCosmeticItem;
 import dev.eliasnvx.catgirl.item.YarnBallItem;
 import dev.eliasnvx.catgirl.cosmetic.CatSlot;
 import dev.eliasnvx.catgirl.cosmetic.Coat;
@@ -18,15 +19,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
+import dev.architectury.core.item.ArchitecturySpawnEggItem;
+import dev.eliasnvx.catgirl.entity.CatgirlEntities;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.component.Consumables;
-import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -37,8 +35,8 @@ import java.util.function.Function;
 public final class CatgirlItems {
 
     public static final DeferredRegister<Item> REGISTER = DeferredRegister.create(CatgirlMod.MOD_ID, Registries.ITEM);
+    private static final int SPAWN_EGG_TINT = 0xFFFFFF;
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(CatgirlMod.MOD_ID, Registries.CREATIVE_MODE_TAB);
-    private static final float CATNIP_EAT_SECONDS = 0.8F;
     /** Items whose creative tab entry is one stack per {@link Coat}. */
     private static final List<RegistrySupplier<Item>> COATED = new ArrayList<>();
     private static final List<RegistrySupplier<Item>> DYEABLE = new ArrayList<>();
@@ -74,22 +72,21 @@ public final class CatgirlItems {
 
     // mechanics
     public static final RegistrySupplier<Item> CAT_BED = register("cat_bed",
-            props -> new BlockItem(CatgirlBlocks.CAT_BED.get(), props.useBlockDescriptionPrefix()));
+            props -> new BlockItem(CatgirlBlocks.CAT_BED.get(), props));
     public static final RegistrySupplier<Item> CARDBOARD_BOX = register("cardboard_box",
-            props -> new BlockItem(CatgirlBlocks.CARDBOARD_BOX.get(), props.useBlockDescriptionPrefix()));
+            props -> new BlockItem(CatgirlBlocks.CARDBOARD_BOX.get(), props));
     /** Plants the catnip bush, or is eaten: Haste and the catnip tumbles (CatnipItem). */
     public static final RegistrySupplier<Item> CATNIP = register("catnip", props -> new CatnipItem(CatgirlBlocks.CATNIP.get(),
-            props.useItemDescriptionPrefix().food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).alwaysEdible().build(),
-                    Consumables.defaultFood().consumeSeconds(CATNIP_EAT_SECONDS).onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
-                            new MobEffectInstance(MobEffects.HASTE, CatnipItem.EFFECT_TICKS),
-                            new MobEffectInstance(CatgirlEffects.CATNIP.asHolder(), CatnipItem.EFFECT_TICKS)))).build())));
+            props.food(new FoodProperties.Builder().nutrition(1).saturationMod(0.1F).alwaysEat().fast()
+                    .effect(new MobEffectInstance(MobEffects.DIG_SPEED, CatnipItem.EFFECT_TICKS), 1.0F)
+                    .effect(new MobEffectInstance(CatgirlEffects.CATNIP.get(), CatnipItem.EFFECT_TICKS), 1.0F).build())));
     public static final RegistrySupplier<Item> YARN_BALL = register("yarn_ball", props -> new YarnBallItem(props.stacksTo(16)));
 
-    public static final RegistrySupplier<Item> STRAY_NEKO_SPAWN_EGG = spawnEgg("stray_neko_spawn_egg", "stray_neko");
-    public static final RegistrySupplier<Item> FISHER_NEKO_SPAWN_EGG = spawnEgg("fisher_neko_spawn_egg", "fisher_neko");
-    public static final RegistrySupplier<Item> BAKENEKO_SPAWN_EGG = spawnEgg("bakeneko_spawn_egg", "bakeneko");
-    public static final RegistrySupplier<Item> CAT_SPIRIT_SPAWN_EGG = spawnEgg("cat_spirit_spawn_egg", "cat_spirit");
-    public static final RegistrySupplier<Item> KITTEN_SPAWN_EGG = spawnEgg("kitten_spawn_egg", "kitten");
+    public static final RegistrySupplier<Item> STRAY_NEKO_SPAWN_EGG = spawnEgg("stray_neko_spawn_egg", CatgirlEntities.STRAY_NEKO);
+    public static final RegistrySupplier<Item> FISHER_NEKO_SPAWN_EGG = spawnEgg("fisher_neko_spawn_egg", CatgirlEntities.FISHER_NEKO);
+    public static final RegistrySupplier<Item> BAKENEKO_SPAWN_EGG = spawnEgg("bakeneko_spawn_egg", CatgirlEntities.BAKENEKO);
+    public static final RegistrySupplier<Item> CAT_SPIRIT_SPAWN_EGG = spawnEgg("cat_spirit_spawn_egg", CatgirlEntities.CAT_SPIRIT);
+    public static final RegistrySupplier<Item> KITTEN_SPAWN_EGG = spawnEgg("kitten_spawn_egg", CatgirlEntities.KITTEN);
     private static final List<RegistrySupplier<Item>> SPAWN_EGGS = List.of(STRAY_NEKO_SPAWN_EGG, FISHER_NEKO_SPAWN_EGG,
             BAKENEKO_SPAWN_EGG, CAT_SPIRIT_SPAWN_EGG, KITTEN_SPAWN_EGG);
 
@@ -136,38 +133,40 @@ public final class CatgirlItems {
 
     public static ItemStack withCoat(Item item, Coat coat) {
         ItemStack stack = new ItemStack(item);
-        stack.set(CatgirlComponents.COAT.get(), coat);
+        CatgirlComponents.COAT.set(stack, coat);
         return stack;
     }
 
     /** A wearable fur piece; the coat comes from crafting (wool color) or trades, white if missing. */
     private static RegistrySupplier<Item> coated(String name, CatSlot slot) {
-        RegistrySupplier<Item> item = register(name, props -> new Item(props.stacksTo(1)
-                .component(CatgirlComponents.COSMETIC.get(), new Cosmetic(slot))
-                .component(CatgirlComponents.COAT.get(), Coat.DEFAULT)));
+        RegistrySupplier<Item> item = register(name, props -> {
+            Item piece = new Item(props.stacksTo(1));
+            CatgirlComponents.COSMETIC.setDefault(piece, new Cosmetic(slot));
+            CatgirlComponents.COAT.setDefault(piece, Coat.DEFAULT);
+            return piece;
+        });
         COATED.add(item);
         return item;
     }
 
-    /** A neck accessory, colored by vanilla dyeing ({@code minecraft:dyed_color}). */
+    /** An accessory colored by vanilla dyeing, like leather armor. */
     private static RegistrySupplier<Item> dyeable(String name, CatSlot slot) {
-        RegistrySupplier<Item> item = register(name, props -> new Item(props.stacksTo(1)
-                .component(CatgirlComponents.COSMETIC.get(), new Cosmetic(slot))));
+        RegistrySupplier<Item> item = register(name, props -> {
+            Item piece = new DyeableCosmeticItem(props.stacksTo(1));
+            CatgirlComponents.COSMETIC.setDefault(piece, new Cosmetic(slot));
+            return piece;
+        });
         DYEABLE.add(item);
         return item;
     }
 
-    private static RegistrySupplier<Item> spawnEgg(String name, String entity) {
-        ResourceKey<EntityType<?>> type = ResourceKey.create(Registries.ENTITY_TYPE, CatgirlMod.id(entity));
-        return register(name, props -> new SpawnEggItem(
-                // ENTITY_DATA resolved late: on NeoForge items may be built before entity types are registered
-                props.delayedComponent(DataComponents.ENTITY_DATA, context -> TypedEntityData.of(
-                        context.lookupOrThrow(Registries.ENTITY_TYPE).getOrThrow(type).value(), new CompoundTag()))));
+    /** The egg's texture shows the mob itself (the newer vanilla style), so the tint colors are white. */
+    private static RegistrySupplier<Item> spawnEgg(String name, RegistrySupplier<? extends EntityType<? extends Mob>> type) {
+        return register(name, props -> new ArchitecturySpawnEggItem(type, SPAWN_EGG_TINT, SPAWN_EGG_TINT, props));
     }
 
     /** Also used by CatgirlFoods. */
     public static RegistrySupplier<Item> register(String name, Function<Item.Properties, Item> factory) {
-        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, CatgirlMod.id(name));
-        return REGISTER.register(name, () -> factory.apply(new Item.Properties().setId(key)));
+        return REGISTER.register(name, () -> factory.apply(new Item.Properties()));
     }
 }

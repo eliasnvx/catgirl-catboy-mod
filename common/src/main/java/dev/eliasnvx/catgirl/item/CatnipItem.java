@@ -5,8 +5,8 @@ import dev.eliasnvx.catgirl.effect.CatgirlEffects;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.feline.Cat;
-import net.minecraft.world.entity.animal.feline.Ocelot;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Ocelot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,14 +28,20 @@ public class CatnipItem extends BlockItem {
         super(block, properties);
     }
 
+    /** "Catnip" as an item, not the bush's block name. */
+    @Override
+    public String getDescriptionId() {
+        return getOrCreateDescriptionId();
+    }
+
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        boolean already = entity.hasEffect(CatgirlEffects.CATNIP.asHolder());
+        boolean already = entity.hasEffect(CatgirlEffects.CATNIP.get());
         ItemStack result = super.finishUsingItem(stack, level, entity);
         if (!level.isClientSide()) {
             for (LivingEntity cat : level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(CAT_RADIUS),
                     e -> e instanceof Cat || e instanceof Ocelot)) {
-                cat.addEffect(new MobEffectInstance(CatgirlEffects.CATNIP.asHolder(), CAT_ZOOMIES_TICKS));
+                cat.addEffect(new MobEffectInstance(CatgirlEffects.CATNIP.get(), CAT_ZOOMIES_TICKS));
             }
             if (already && entity instanceof ServerPlayer player) {
                 CatgirlAdvancements.award(player, CatgirlAdvancements.CATNIP_OVERDOSE);

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "catgirl:raw_fish_sticks"
+  },
+  "result": "catgirl:fish_sticks"
+}

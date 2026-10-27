@@ -1,9 +1,6 @@
 package dev.eliasnvx.catgirl.cosmetic;
 
 import com.mojang.serialization.Codec;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Locale;
@@ -24,7 +21,6 @@ public enum Coat implements StringRepresentable {
     NEON(0x4FF0D8, 0xFF6EC7, 0xFF6EC7, 0x2CCDB6, 0xC8FFF6);
 
     public static final Codec<Coat> CODEC = StringRepresentable.fromEnum(Coat::values);
-    public static final StreamCodec<ByteBuf, Coat> STREAM_CODEC = ByteBufCodecs.idMapper(i -> values()[i], Enum::ordinal);
 
     /** Undyed fallback for items without the component. */
     public static final Coat DEFAULT = WHITE;

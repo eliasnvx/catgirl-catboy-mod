@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "catgirl_paw_slippers",
+  "pattern": [
+    "W W",
+    "L L"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:pink_wool"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "catgirl:paw_slippers",
+    "nbt": {
+      "catgirl:coat": "pink"
+    }
+  }
+}

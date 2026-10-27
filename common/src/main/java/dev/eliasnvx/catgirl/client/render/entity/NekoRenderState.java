@@ -1,14 +1,12 @@
 package dev.eliasnvx.catgirl.client.render.entity;
 
 import dev.eliasnvx.catgirl.cosmetic.Coat;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
-/** Render state of a cat-person mob. */
-public class NekoRenderState extends HumanoidRenderState {
+/** What the ears and tail of a cat-person mob read this frame (1.20.1 has no render states: filled per draw). */
+public class NekoRenderState {
     public Coat coat = Coat.DEFAULT;
-    public int skin;
-    /** Fisher Neko at the water. */
-    public boolean sitting;
     /** Per-mob phase so ears and tails of a crowd don't move in step. */
     public float phase;
+    public float ageInTicks;
+    public boolean hasRedOverlay;
 }

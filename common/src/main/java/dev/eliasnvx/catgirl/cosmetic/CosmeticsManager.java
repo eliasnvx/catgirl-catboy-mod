@@ -87,7 +87,7 @@ public final class CosmeticsManager {
 
     /** The slot an item is worn in, or null if it is not a cosmetic. */
     public static @Nullable CatSlot slotOf(ItemStack stack) {
-        Cosmetic cosmetic = stack.get(CatgirlComponents.COSMETIC.get());
+        Cosmetic cosmetic = CatgirlComponents.COSMETIC.get(stack);
         return cosmetic == null ? null : cosmetic.slot();
     }
 

@@ -2,22 +2,19 @@ package dev.eliasnvx.catgirl.set;
 
 import dev.architectury.networking.NetworkManager;
 import dev.eliasnvx.catgirl.CatgirlMod;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.eliasnvx.catgirl.network.CatgirlNetwork;
+import dev.eliasnvx.catgirl.network.CatgirlPacket;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 /** S2C: this player just landed on all fours (Alley Cat); clients play the crouch pose for a moment. */
-public record LandingPayload(int entityId) implements CustomPacketPayload {
+public record LandingPayload(int entityId) implements CatgirlPacket {
 
-    public static final Type<LandingPayload> TYPE = new Type<>(CatgirlMod.id("landing"));
-
-    public static final StreamCodec<ByteBuf, LandingPayload> STREAM_CODEC =
-            ByteBufCodecs.VAR_INT.map(LandingPayload::new, LandingPayload::entityId);
+    public static final ResourceLocation ID = CatgirlMod.id("landing");
 
     /** Set by the client entry point; the payload class itself stays loadable on a dedicated server. */
     public static volatile Receiver onClient = (entityId, ticks) -> {
@@ -29,21 +26,32 @@ public record LandingPayload(int entityId) implements CustomPacketPayload {
     }
 
     @Override
-    public Type<LandingPayload> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(entityId);
+    }
+
+    public static LandingPayload read(FriendlyByteBuf buf) {
+        return new LandingPayload(buf.readVarInt());
     }
 
     public static void handle(LandingPayload payload, NetworkManager.PacketContext context) {
         context.queue(() -> onClient.landed(payload.entityId(), SetBonuses.landingPoseTicks()));
     }
 
-    @SuppressWarnings("unchecked")
     static void sendToTrackingAndSelf(ServerPlayer player) {
-        Packet<? super ClientGamePacketListener> packet = (Packet<? super ClientGamePacketListener>)
-                NetworkManager.toPacket(NetworkManager.s2c(), new LandingPayload(player.getId()), player.registryAccess());
-        ((ServerLevel) player.level()).getChunkSource().sendToTrackingPlayersFiltered(player, packet,
-                receiver -> NetworkManager.canPlayerReceive(receiver, TYPE));
-        if (NetworkManager.canPlayerReceive(player, TYPE)) {
+        Packet<ClientGamePacketListener> packet = CatgirlNetwork.toClientPacket(new LandingPayload(player.getId()));
+        // 1.20.1 has no filtered tracking broadcast: players in view of the chunk are a superset of the trackers
+        for (ServerPlayer watcher : ((ServerLevel) player.level()).getChunkSource().chunkMap.getPlayers(player.chunkPosition(), false)) {
+            if (watcher != player && CatgirlNetwork.canReceive(watcher, ID)) {
+                watcher.connection.send(packet);
+            }
+        }
+        if (CatgirlNetwork.canReceive(player, ID)) {
             player.connection.send(packet);
         }
     }

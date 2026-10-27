@@ -13,8 +13,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.entity.animal.feline.Cat;
-import net.minecraft.world.entity.animal.feline.Ocelot;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Ocelot;
 import dev.architectury.registry.level.biome.BiomeModifications;
 import dev.architectury.registry.level.entity.EntityAttributeRegistry;
 import dev.architectury.registry.level.entity.SpawnPlacementsRegistry;
@@ -27,10 +27,8 @@ import dev.eliasnvx.catgirl.entity.neko.StrayNeko;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -41,11 +39,11 @@ public final class CatgirlEntities {
 
     public static final DeferredRegister<EntityType<?>> REGISTER = DeferredRegister.create(CatgirlMod.MOD_ID, Registries.ENTITY_TYPE);
 
-    /** Invisible seat in a cat bed or a box. Saved (26.3 refuses riding unsaved entities) but removes itself when empty. */
+    /** Invisible seat in a cat bed or a box. Saved, but removes itself when empty. */
     public static final ResourceKey<EntityType<?>> SEAT_KEY = ResourceKey.create(Registries.ENTITY_TYPE, CatgirlMod.id("seat"));
-    public static final RegistrySupplier<EntityType<CatSeat>> SEAT = REGISTER.register(SEAT_KEY.identifier(),
+    public static final RegistrySupplier<EntityType<CatSeat>> SEAT = REGISTER.register(SEAT_KEY.location(),
             () -> EntityType.Builder.<CatSeat>of(CatSeat::new, MobCategory.MISC)
-                    .sized(0.25F, 0.25F).noSummon().noLootTable().clientTrackingRange(10).build(SEAT_KEY));
+                    .sized(0.25F, 0.25F).noSummon().clientTrackingRange(10).build(SEAT_KEY.location().toString()));
 
     public static final RegistrySupplier<EntityType<StrayNeko>> STRAY_NEKO = humanoid("stray_neko", StrayNeko::new, MobCategory.CREATURE);
     public static final RegistrySupplier<EntityType<FisherNeko>> FISHER_NEKO = humanoid("fisher_neko", FisherNeko::new, MobCategory.CREATURE);
@@ -53,9 +51,9 @@ public final class CatgirlEntities {
     public static final RegistrySupplier<EntityType<CatSpirit>> CAT_SPIRIT = humanoid("cat_spirit", CatSpirit::new, MobCategory.MONSTER);
     public static final ResourceKey<EntityType<?>> KITTEN_KEY = key("kitten");
     /** A real kitten (vanilla cat size and model). */
-    public static final RegistrySupplier<EntityType<Kitten>> KITTEN = REGISTER.register(KITTEN_KEY.identifier(),
-            () -> EntityType.Builder.<Kitten>of(Kitten::new, MobCategory.CREATURE).sized(0.6F, 0.7F).eyeHeight(0.35F)
-                    .clientTrackingRange(8).build(KITTEN_KEY));
+    public static final RegistrySupplier<EntityType<Kitten>> KITTEN = REGISTER.register(KITTEN_KEY.location(),
+            () -> EntityType.Builder.<Kitten>of(Kitten::new, MobCategory.CREATURE).sized(0.6F, 0.7F)
+                    .clientTrackingRange(8).build(KITTEN_KEY.location().toString()));
 
     // Natural spawning (move the weights to catgirl-common config once the config exists); biomes are data tags
     public static final TagKey<Biome> STRAY_NEKO_SPAWNS = biomeTag("spawns/stray_neko");
@@ -83,25 +81,25 @@ public final class CatgirlEntities {
         return TagKey.create(Registries.BIOME, CatgirlMod.id(name));
     }
 
-    /** The shared cat-person rig: player-sized. */
+    /** The shared cat-person rig: player-sized (eyes at a player's height: NekoMob, StrayNeko). */
     private static <T extends Mob> RegistrySupplier<EntityType<T>> humanoid(String name, EntityType.EntityFactory<T> factory, MobCategory category) {
         ResourceKey<EntityType<?>> key = key(name);
-        return REGISTER.register(key.identifier(), () -> EntityType.Builder.of(factory, category)
-                .sized(0.6F, 1.95F).eyeHeight(1.62F).clientTrackingRange(10).build(key));
+        return REGISTER.register(key.location(), () -> EntityType.Builder.of(factory, category)
+                .sized(0.6F, 1.95F).clientTrackingRange(10).build(key.location().toString()));
     }
 
     private static <T extends Mob> void spawn(RegistrySupplier<EntityType<T>> type, MobCategory category, TagKey<Biome> biomes,
                                              int weight, SpawnPlacements.SpawnPredicate<T> rules) {
-        SpawnPlacementsRegistry.register(type, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, rules);
+        SpawnPlacementsRegistry.register(type, SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, rules);
         BiomeModifications.addProperties(ctx -> ctx.hasTag(biomes), (ctx, props) -> props.getSpawnProperties()
-                .addSpawn(category, new MobSpawnSettings.SpawnerData(type.get(), UniformInt.of(1, 1)), weight));
+                .addSpawn(category, new MobSpawnSettings.SpawnerData(type.get(), weight, 1, 1)));
     }
 
     /** Stray nekos live in villages: open ground inside one. */
-    private static boolean inVillage(EntityType<? extends Mob> type, ServerLevelAccessor level, EntitySpawnReason reason,
+    private static boolean inVillage(EntityType<? extends Mob> type, ServerLevelAccessor level, MobSpawnType reason,
                                      BlockPos pos, RandomSource random) {
         return Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && (reason != EntitySpawnReason.NATURAL || level.getLevel().isVillage(pos));
+                && (reason != MobSpawnType.NATURAL || level.getLevel().isVillage(pos));
     }
 
     public static void init() {

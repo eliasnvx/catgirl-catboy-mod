@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "catgirl_paw_mittens",
+  "pattern": [
+    "WWW",
+    "WLW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:lime_wool"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "catgirl:paw_mittens",
+    "nbt": {
+      "catgirl:coat": "neon"
+    }
+  }
+}

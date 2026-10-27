@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "catgirl:takoyaki"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_squid_tentacle": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "catgirl:squid_tentacle"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_squid_tentacle"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "catgirl:takoyaki"
+    ]
+  }
+}

@@ -8,12 +8,12 @@ import net.minecraft.world.entity.player.Player;
 
 public final class PlatformHelperImpl {
 
-    private static final AttachmentType<CosmeticInventory> COSMETICS = AttachmentRegistry.create(
-            CatgirlMod.id("cosmetics"),
-            builder -> builder
-                    .initializer(() -> CosmeticInventory.EMPTY)
-                    .persistent(CosmeticInventory.CODEC)
-                    .copyOnDeath());
+    // Fabric API 0.92 ships the (experimental) Data Attachment API v1.0.x: builder() + buildAndRegister(id)
+    private static final AttachmentType<CosmeticInventory> COSMETICS = AttachmentRegistry.<CosmeticInventory>builder()
+            .initializer(() -> CosmeticInventory.EMPTY)
+            .persistent(CosmeticInventory.CODEC)
+            .copyOnDeath()
+            .buildAndRegister(CatgirlMod.id("cosmetics"));
 
     private PlatformHelperImpl() {
     }

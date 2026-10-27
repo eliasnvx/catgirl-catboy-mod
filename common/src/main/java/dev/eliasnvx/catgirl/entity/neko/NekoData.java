@@ -4,7 +4,7 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import dev.eliasnvx.catgirl.cosmetic.Coat;
 import dev.eliasnvx.catgirl.registry.CatgirlItems;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,7 +29,7 @@ public final class NekoData {
     /** Hands an item to a player, or drops it at their feet if the inventory is full. */
     public static void give(ServerPlayer player, ItemStack stack) {
         if (!player.getInventory().add(stack)) {
-            player.spawnAtLocation(player.level(), stack);
+            player.spawnAtLocation(stack);
         }
     }
 
@@ -37,7 +37,7 @@ public final class NekoData {
      * The Fisher Neko's quest reward: any fur piece (ears, tail, paws, leg warmers, slippers) in a rare coat. Siamese
      * and Calico can't be crafted; the repeatable quest is how a whole rare outfit comes together.
      */
-    public static ItemStack rarePiece(Entity source) {
+    public static ItemStack rarePiece(LivingEntity source) {
         List<RegistrySupplier<Item>> pieces = CatgirlItems.coated();
         Item piece = pieces.get(source.getRandom().nextInt(pieces.size())).get();
         return CatgirlItems.withCoat(piece, source.getRandom().nextBoolean() ? Coat.SIAMESE : Coat.CALICO);

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "catgirl_paw_gloves",
+  "pattern": [
+    "WLW",
+    "W W"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:gray_wool"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "catgirl:paw_gloves",
+    "nbt": {
+      "catgirl:coat": "gray"
+    }
+  }
+}

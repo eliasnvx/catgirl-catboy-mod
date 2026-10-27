@@ -14,48 +14,58 @@ configurations {
 }
 
 dependencies {
-    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
-    implementation "dev.architectury:architectury-fabric:${rootProject.architectury_api_version}"
-    implementation "com.geckolib:geckolib-fabric-${rootProject.minecraft_version}:${rootProject.geckolib_version}"
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    modImplementation "dev.architectury:architectury-fabric:${rootProject.architectury_api_version}"
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${rootProject.minecraft_version}:${rootProject.geckolib_version}"
 
-    common(project(path: ":common")) { transitive false }
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
 
     // Compat checks in the dev client and the client GameTests: -Pcompat=true loads JEI and Jade
     if (project.findProperty("compat") == "true") {
-        runtimeOnly "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
-        runtimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}") { transitive false }
+        modRuntimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}") { transitive false }
+        modRuntimeOnly("net.mezzdev.config:mezz_config-${rootProject.minecraft_version}-fabric:${rootProject.mezz_config_version}") { transitive false }
+        modRuntimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}") { transitive false }
     }
     shadowBundle(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 }
 
 // Server GameTests: shared bodies in common/.../gametest (the cosmetic slot dupe checks), Fabric glue in src/gametest.
-// They run as part of `build` via the generated `runGameTest` task (Fabric skips the EULA check for test servers).
-// Client GameTests (src/gametest): screenshots of the cosmetics in a real client window. Not part of `build`;
-// run manually: ./gradlew :fabric:runClientGameTest (screenshots in build/run/clientGameTest/screenshots)
+// They run as part of `build` via the generated `runGameTest` task.
 fabricApi {
     configureTests {
         createSourceSet = true
         modId = "catgirl-test"
         enableGameTests = true
-        enableClientGameTests = true
+        enableClientGameTests = false // 1.20.1 Fabric API has no client GameTest API
     }
 }
 
-jar {
-    archiveClassifier = "raw"
+// Dev-only check in a real client (1.20.1 has no client GameTest API): the shared DevCheck, started from src/gametest.
+// Opens build/run/devCheck/saves/catgirl-check (created flat on the first run), dresses the player, places blocks and
+// mobs, takes screenshots into build/run/devCheck/screenshots and quits. ./gradlew :fabric:runDevCheck [-Pcompat=true]
+loom {
+    runs {
+        devCheck {
+            client()
+            name "Fabric Dev Check"
+            source sourceSets.gametest
+            runDir "build/run/devCheck"
+            property "catgirl.devcheck", "true"
+        }
+    }
 }
 
 shadowJar {
-    dependsOn jar
-    mainSpec.sourcePaths.clear()
-    from(zipTree(jar.archiveFile))
     configurations = [project.configurations.shadowBundle]
-    archiveClassifier = null
-    archiveVersion = "${project.version}+${rootProject.minecraft_version}-fabric"
+    archiveClassifier = "dev-shadow"
     exclude "architectury.common.json"
     exclude "dev/eliasnvx/catgirl/gametest/**" // shared GameTest bodies stay out of the released jar
     from rootProject.file("LICENSE")
 }
 
-assemble.dependsOn shadowJar
+remapJar {
+    inputFile.set(shadowJar.archiveFile)
+    archiveClassifier = null
+    archiveVersion = "${project.version}+${rootProject.minecraft_version}-fabric"
+}

@@ -1,6 +1,6 @@
 package dev.eliasnvx.catgirl;
 
-import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -27,7 +27,7 @@ public final class CatgirlAdvancements {
     }
 
     public static void award(ServerPlayer player, String id, String criterion) {
-        AdvancementHolder advancement = player.level().getServer().getAdvancements().get(CatgirlMod.id(id));
+        Advancement advancement = player.level().getServer().getAdvancements().getAdvancement(CatgirlMod.id(id));
         if (advancement != null) {
             player.getAdvancements().award(advancement, criterion);
         }
@@ -35,7 +35,7 @@ public final class CatgirlAdvancements {
 
     /** Awards the first criterion of a multi-step advancement that isn't done yet (one more step of progress). */
     public static void awardNext(ServerPlayer player, String id) {
-        AdvancementHolder advancement = player.level().getServer().getAdvancements().get(CatgirlMod.id(id));
+        Advancement advancement = player.level().getServer().getAdvancements().getAdvancement(CatgirlMod.id(id));
         if (advancement == null) {
             return;
         }

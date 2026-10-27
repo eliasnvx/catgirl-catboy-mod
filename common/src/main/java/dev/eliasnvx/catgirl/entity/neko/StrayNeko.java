@@ -1,5 +1,6 @@
 package dev.eliasnvx.catgirl.entity.neko;
 
+import dev.eliasnvx.catgirl.item.Stacks;
 import dev.eliasnvx.catgirl.CatgirlMod;
 import dev.eliasnvx.catgirl.block.CatBedBlock;
 import dev.eliasnvx.catgirl.cosmetic.Coat;
@@ -23,10 +24,12 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -39,16 +42,16 @@ import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.TradeWithPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.item.trading.TradeSet;
+import dev.eliasnvx.catgirl.world.trade.TradeSets;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -61,7 +64,7 @@ import java.util.UUID;
  */
 public class StrayNeko extends AbstractVillager implements CoatedNeko {
 
-    public static final ResourceKey<TradeSet> TRADES = ResourceKey.create(Registries.TRADE_SET, CatgirlMod.id("stray_neko"));
+    public static final ResourceLocation TRADES = CatgirlMod.id("stray_neko");
 
     // Balance (move to catgirl-common config once the config exists)
     static final float TAME_CHANCE = 1.0F / 3.0F;
@@ -75,6 +78,7 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     private static final EntityDataAccessor<Integer> COAT = SynchedEntityData.defineId(StrayNeko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SKIN = SynchedEntityData.defineId(StrayNeko.class, EntityDataSerializers.INT);
     private static final float VOICE_PITCH = 1.3F;
+    private static final float EYE_HEIGHT = 1.62F;
 
     private @Nullable UUID owner;
     private int fishFed;
@@ -82,6 +86,12 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
 
     public StrayNeko(EntityType<? extends StrayNeko> type, Level level) {
         super(type, level);
+    }
+
+    /** A player's eye height (1.20.1 sets it on the entity, later versions on the type). */
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return EYE_HEIGHT;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -102,10 +112,10 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(COAT, Coat.GINGER.ordinal());
-        builder.define(SKIN, 0);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(COAT, Coat.GINGER.ordinal());
+        entityData.define(SKIN, 0);
     }
 
     @Override
@@ -143,15 +153,15 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
-                                        @Nullable SpawnGroupData data) {
-        if (reason != EntitySpawnReason.CONVERSION) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+                                        @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
+        if (reason != MobSpawnType.CONVERSION) {
             // Siamese and Calico stay rare: the fisher's quest gives them
             Coat[] common = {Coat.BLACK, Coat.WHITE, Coat.GINGER, Coat.GRAY, Coat.PINK};
             setCoat(common[random.nextInt(common.length)]);
             setSkin(random.nextInt(SKINS));
         }
-        return super.finalizeSpawn(level, difficulty, reason, data);
+        return super.finalizeSpawn(level, difficulty, reason, data, tag);
     }
 
     @Override
@@ -171,22 +181,22 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
                 setTradingPlayer(player);
                 openTradingScreen(player, getDisplayName(), 1);
             }
-            return InteractionResult.SUCCESS_SERVER;
+            return InteractionResult.SUCCESS;
         }
         return super.mobInteract(player, hand);
     }
 
     private void feed(ServerPlayer player, ItemStack fish) {
         ServerLevel level = (ServerLevel) level();
-        fish.consume(1, player);
+        Stacks.consume(fish, 1, player);
         heal(FEED_HEAL);
-        playSound(SoundEvents.GENERIC_EAT.value(), 1.0F, 1.0F);
+        playSound(SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
         if (!isTame()) {
             if (random.nextFloat() < TAME_CHANCE) {
                 owner = player.getUUID();
                 setPersistenceRequired();
                 hearts(level);
-                player.sendOverlayMessage(Component.translatable("message.catgirl.stray_neko.trusts", getDisplayName()));
+                player.displayClientMessage(Component.translatable("message.catgirl.stray_neko.trusts", getDisplayName()), true);
             } else {
                 level.sendParticles(ParticleTypes.SMOKE, getX(), getEyeY(), getZ(), 5, 0.3, 0.2, 0.3, 0.0);
             }
@@ -201,16 +211,16 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     }
 
     private void spawnKitten(ServerLevel level, ServerPlayer player) {
-        Kitten kitten = CatgirlEntities.KITTEN.get().create(level, EntitySpawnReason.BREEDING);
+        Kitten kitten = CatgirlEntities.KITTEN.get().create(level);
         if (kitten == null) {
             return;
         }
         kitten.setCoat(random.nextBoolean() ? coat() : Coat.values()[random.nextInt(Coat.values().length)]);
         kitten.setAge(AgeableMob.BABY_START_AGE);
-        kitten.snapTo(getX(), getY(), getZ(), random.nextFloat() * 360.0F, 0.0F);
+        kitten.moveTo(getX(), getY(), getZ(), random.nextFloat() * 360.0F, 0.0F);
         kitten.tame(player);
         level.addFreshEntityWithPassengers(kitten);
-        player.sendOverlayMessage(Component.translatable("message.catgirl.stray_neko.kitten", getDisplayName()));
+        player.displayClientMessage(Component.translatable("message.catgirl.stray_neko.kitten", getDisplayName()), true);
     }
 
     private void hearts(ServerLevel level) {
@@ -218,8 +228,8 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     }
 
     @Override
-    protected void updateTrades(ServerLevel level) {
-        addOffersFromTradeSet(level, getOffers(), TRADES);
+    protected void updateTrades() {
+        TradeSets.addOffers(this, getOffers(), TRADES, random);
     }
 
     @Override
@@ -255,7 +265,7 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public void addAdditionalSaveData(CompoundTag output) {
         super.addAdditionalSaveData(output);
         output.putString("catgirl_coat", coat().getSerializedName());
         output.putInt("catgirl_skin", skin());
@@ -267,14 +277,14 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    public void readAdditionalSaveData(CompoundTag input) {
         super.readAdditionalSaveData(input);
-        setCoat(NekoData.coat(input.getStringOr("catgirl_coat", "")));
-        setSkin(input.getIntOr("catgirl_skin", 0));
-        String savedOwner = input.getStringOr("catgirl_owner", "");
+        setCoat(NekoData.coat(input.getString("catgirl_coat")));
+        setSkin(input.getInt("catgirl_skin"));
+        String savedOwner = input.getString("catgirl_owner");
         owner = savedOwner.isEmpty() ? null : UUID.fromString(savedOwner);
-        fishFed = input.getIntOr("catgirl_fish_fed", 0);
-        nextKittenTime = input.getLongOr("catgirl_next_kitten", 0L);
+        fishFed = input.getInt("catgirl_fish_fed");
+        nextKittenTime = input.getLong("catgirl_next_kitten");
     }
 
     /** A tamed neko walks after its owner (no teleporting: it's a person, not a pet). */
@@ -325,12 +335,12 @@ public class StrayNeko extends AbstractVillager implements CoatedNeko {
 
         @Override
         public boolean canUse() {
-            return isTame() && !level().isBrightOutside() && super.canUse();
+            return isTame() && !level().isDay() && super.canUse();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return !level().isBrightOutside() && super.canContinueToUse();
+            return !level().isDay() && super.canContinueToUse();
         }
 
         @Override

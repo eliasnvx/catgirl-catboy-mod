@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
  * Quieter steps in paw slippers or the Full Neko set. Runs on both sides: a player's own client plays its steps, the
  * server plays them for everyone else; both know the cosmetics, so both turn the volume down.
  * <p>
- * Vanilla (Fabric) calls {@code playSound} right in {@code playStepSound}; NeoForge patches that into
- * {@code BlockState.playStepSound(level, pos, entity, volume, pitch)}. One injector per loader, the group makes sure
- * exactly one of them applies.
+ * Vanilla (Fabric) and Forge 47 call {@code playSound} right in {@code playStepSound}; later NeoForge versions patch that
+ * into {@code BlockState.playStepSound(level, pos, entity, volume, pitch)}. One injector per case (kept alike across the
+ * branches), the group makes sure exactly one of them applies.
  */
 @Mixin(Entity.class)
 public abstract class EntityStepSoundMixin {

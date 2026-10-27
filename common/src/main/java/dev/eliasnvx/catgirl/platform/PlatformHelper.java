@@ -4,7 +4,7 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.eliasnvx.catgirl.cosmetic.CosmeticInventory;
 import net.minecraft.world.entity.player.Player;
 
-/** Loader-specific services. Implementations: {@code platform.fabric/neoforge.PlatformHelperImpl}. */
+/** Loader-specific services. Implementations: {@code platform.fabric/forge.PlatformHelperImpl}. */
 public final class PlatformHelper {
 
     private PlatformHelper() {

@@ -1,5 +1,6 @@
 package dev.eliasnvx.catgirl.entity.neko;
 
+import dev.eliasnvx.catgirl.item.Stacks;
 import dev.eliasnvx.catgirl.cosmetic.Coat;
 import dev.eliasnvx.catgirl.registry.CatgirlItems;
 import dev.eliasnvx.catgirl.registry.CatgirlSounds;
@@ -16,7 +17,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
@@ -28,8 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Bakeneko: a rare night prowler in forests and bamboo, the mod's one "bad" mob, but harmless. Come too
@@ -60,7 +60,7 @@ public class Bakeneko extends NekoMob {
     }
 
     /** Dark spots at night, never in peaceful. */
-    public static boolean checkSpawnRules(EntityType<? extends Mob> type, ServerLevelAccessor level, EntitySpawnReason reason,
+    public static boolean checkSpawnRules(EntityType<? extends Mob> type, ServerLevelAccessor level, MobSpawnType reason,
                                           BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL && level.getMaxLocalRawBrightness(pos) <= MAX_SPAWN_LIGHT
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random);
@@ -84,15 +84,16 @@ public class Bakeneko extends NekoMob {
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
-        super.customServerAiStep(level);
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        ServerLevel level = (ServerLevel) level();
         if (stealCooldown > 0) {
             stealCooldown--;
         }
         if (fleeTicks > 0) {
             fleeTicks--;
         }
-        if (level.isBrightOutside() && level.canSeeSky(blockPosition())) {
+        if (level.isDay() && level.canSeeSky(blockPosition())) {
             vanish(level); // gone by morning, loot left behind
             return;
         }
@@ -113,7 +114,7 @@ public class Bakeneko extends NekoMob {
         stealCooldown = STEAL_COOLDOWN_TICKS;
         level.playSound(null, this, CatgirlSounds.BAKENEKO_HISS.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
         level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 1.0, getZ(), 8, 0.3, 0.4, 0.3, 0.02);
-        player.sendOverlayMessage(Component.translatable("message.catgirl.bakeneko.stole", loot.getHoverName()));
+        player.displayClientMessage(Component.translatable("message.catgirl.bakeneko.stole", loot.getHoverName()), true);
     }
 
     @Override
@@ -127,35 +128,37 @@ public class Bakeneko extends NekoMob {
         }
         if (!CatSets.has(player, CatSet.FULL_NEKO)) {
             playSound(CatgirlSounds.BAKENEKO_HISS.get(), 1.0F, 1.2F);
-            player.sendOverlayMessage(Component.translatable("message.catgirl.bakeneko.distrust"));
+            player.displayClientMessage(Component.translatable("message.catgirl.bakeneko.distrust"), true);
             return InteractionResult.SUCCESS;
         }
-        held.consume(1, player);
+        Stacks.consume(held, 1, player);
         NekoData.give(serverPlayer, getMainHandItem().copy());
         setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         stealCooldown = CALM_TICKS;
         fleeTicks = 0;
         playSound(CatgirlSounds.CAT_BED_PURR.get(), 1.0F, 1.0F);
         ((ServerLevel) level()).sendParticles(ParticleTypes.HEART, getX(), getEyeY() + 0.4, getZ(), 4, 0.4, 0.2, 0.4, 0.0);
-        player.sendOverlayMessage(Component.translatable("message.catgirl.bakeneko.returned"));
+        player.displayClientMessage(Component.translatable("message.catgirl.bakeneko.returned"), true);
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+    public boolean hurt(DamageSource source, float amount) {
         fleeTicks = FLEE_TICKS;
-        return super.hurtServer(level, source, amount);
+        return super.hurt(source, amount);
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
-        super.dropCustomDeathLoot(level, source, killedByPlayer);
-        dropLoot(level);
+    protected void dropCustomDeathLoot(DamageSource source, int looting, boolean killedByPlayer) {
+        super.dropCustomDeathLoot(source, looting, killedByPlayer);
+        if (level() instanceof ServerLevel level) {
+            dropLoot(level);
+        }
     }
 
     private void dropLoot(ServerLevel level) {
         if (hasLoot()) {
-            spawnAtLocation(level, getMainHandItem().copy());
+            spawnAtLocation(getMainHandItem().copy());
             setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
     }
@@ -173,14 +176,14 @@ public class Bakeneko extends NekoMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public void addAdditionalSaveData(CompoundTag output) {
         super.addAdditionalSaveData(output);
         output.putInt("catgirl_steal_cooldown", stealCooldown);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    public void readAdditionalSaveData(CompoundTag input) {
         super.readAdditionalSaveData(input);
-        stealCooldown = input.getIntOr("catgirl_steal_cooldown", 0);
+        stealCooldown = input.getInt("catgirl_steal_cooldown");
     }
 }

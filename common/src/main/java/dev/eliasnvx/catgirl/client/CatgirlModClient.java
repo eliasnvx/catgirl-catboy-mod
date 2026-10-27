@@ -4,12 +4,17 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.event.events.client.ClientTooltipEvent;
-import dev.architectury.networking.NetworkManager;
+import dev.eliasnvx.catgirl.network.CatgirlNetwork;
+import dev.eliasnvx.catgirl.network.EarlySyncs;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
+import dev.architectury.registry.client.rendering.RenderTypeRegistry;
+import dev.eliasnvx.catgirl.block.CatgirlBlocks;
+import net.minecraft.client.renderer.RenderType;
 import dev.eliasnvx.catgirl.entity.CatgirlEntities;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import dev.eliasnvx.catgirl.CatgirlMod;
+import dev.eliasnvx.catgirl.client.render.ItemTints;
 import dev.eliasnvx.catgirl.client.render.entity.KittenRenderer;
 import dev.eliasnvx.catgirl.client.render.entity.NekoRenderer;
 import dev.eliasnvx.catgirl.client.render.model.CatModels;
@@ -38,17 +43,21 @@ public final class CatgirlModClient {
 
     /** Z by default: M is Xaero's World Map, which most modpacks have. */
     public static final KeyMapping MEOW = new KeyMapping(
-            "key.catgirl.meow", InputConstants.Type.KEYBOARD, InputConstants.KEY_Z, KeyMapping.Category.MULTIPLAYER);
+            "key.catgirl.meow", InputConstants.Type.KEYSYM, InputConstants.KEY_Z, "key.categories.multiplayer");
 
     /** N by default: Full Neko's night vision. */
     public static final KeyMapping NIGHT_VISION = new KeyMapping(
-            "key.catgirl.night_vision", InputConstants.Type.KEYBOARD, InputConstants.KEY_N, KeyMapping.Category.GAMEPLAY);
+            "key.catgirl.night_vision", InputConstants.Type.KEYSYM, InputConstants.KEY_N, "key.categories.gameplay");
 
     private CatgirlModClient() {
     }
 
     public static void init() {
         CatModels.registerLayers();
+        ItemTints.register();
+        // the catnip bush's textures have see-through pixels; 1.20.1 picks a block's render layer in code (as soon as the
+        // block exists: Fabric has it by now, Forge registers it later)
+        CatgirlBlocks.CATNIP.listen(catnip -> RenderTypeRegistry.register(RenderType.cutout(), catnip));
         EntityRendererRegistry.register(CatgirlEntities.SEAT, NoopRenderer::new);
         EntityRendererRegistry.register(CatgirlEntities.STRAY_NEKO, context -> new NekoRenderer<>(context, "stray_neko", false));
         EntityRendererRegistry.register(CatgirlEntities.FISHER_NEKO, context -> new NekoRenderer<>(context, "fisher_neko", false));
@@ -59,14 +68,17 @@ public final class CatgirlModClient {
         KeyMappingRegistry.register(MEOW);
         KeyMappingRegistry.register(NIGHT_VISION);
         ClientTickEvent.CLIENT_POST.register(minecraft -> {
+            if (minecraft.player != null) {
+                EarlySyncs.flush(minecraft.player);
+            }
             while (NIGHT_VISION.consumeClick()) {
-                if (minecraft.player != null && minecraft.gui.screen() == null) {
-                    NetworkManager.sendToServer(NightVision.Payload.INSTANCE);
+                if (minecraft.player != null && minecraft.screen == null) {
+                    CatgirlNetwork.sendToServer(NightVision.Payload.INSTANCE);
                 }
             }
             while (MEOW.consumeClick()) {
-                if (minecraft.player != null && minecraft.gui.screen() == null) {
-                    NetworkManager.sendToServer(MeowPayload.INSTANCE);
+                if (minecraft.player != null && minecraft.screen == null) {
+                    CatgirlNetwork.sendToServer(MeowPayload.INSTANCE);
                 }
             }
         });
@@ -78,23 +90,26 @@ public final class CatgirlModClient {
                 LandingPose.start(entity, ticks);
             }
         };
-        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> LandingPose.clear());
+        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
+            LandingPose.clear();
+            EarlySyncs.clear();
+        });
 
         CatgirlMod.LOGGER.info("catgirl client initialized");
     }
 
-    private static void appendTooltip(ItemStack stack, List<Component> lines, Item.TooltipContext context, TooltipFlag flag) {
+    private static void appendTooltip(ItemStack stack, List<Component> lines, TooltipFlag flag) {
         // how-to lines for the mechanics' items
         if (stack.is(CatgirlItems.CAT_BED.get()) || stack.is(CatgirlItems.CARDBOARD_BOX.get()) || stack.is(CatgirlItems.YARN_BALL.get())
                 || stack.is(CatgirlFoods.CAT_FOOD.get()) || stack.is(CatgirlFoods.MILK_SAUCER.get())) {
             lines.add(Component.translatable("tooltip." + stack.getItem().getDescriptionId().substring(stack.getItem().getDescriptionId().indexOf('.') + 1))
                     .withStyle(ChatFormatting.GRAY));
         }
-        Cosmetic cosmetic = stack.get(CatgirlComponents.COSMETIC.get());
+        Cosmetic cosmetic = CatgirlComponents.COSMETIC.get(stack);
         if (cosmetic == null) {
             return;
         }
-        Coat coat = stack.get(CatgirlComponents.COAT.get());
+        Coat coat = CatgirlComponents.COAT.get(stack);
         if (coat != null) {
             lines.add(Component.translatable("tooltip.catgirl.coat", Component.translatable(coat.translationKey()))
                     .withStyle(ChatFormatting.GRAY));

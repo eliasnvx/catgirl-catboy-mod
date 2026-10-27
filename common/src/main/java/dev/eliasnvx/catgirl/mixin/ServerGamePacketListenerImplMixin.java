@@ -26,15 +26,15 @@ public abstract class ServerGamePacketListenerImplMixin {
     @Inject(method = "handleSetCreativeModeSlot", cancellable = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER,
             target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V"))
     private void catgirl$creativeCosmeticSlot(ServerboundSetCreativeModeSlotPacket packet, CallbackInfo ci) {
-        int index = packet.slotNum();
+        int index = packet.getSlotNum();
         int start = ((InventoryMenuCosmetics) player.inventoryMenu).catgirl$cosmeticStart();
         if (index < start || index >= start + CatSlot.values().length) {
             return;
         }
         ci.cancel();
-        ItemStack stack = packet.itemStack();
+        ItemStack stack = packet.getItem();
         Slot slot = player.inventoryMenu.getSlot(index);
-        if (player.hasInfiniteMaterials() && (stack.isEmpty() || stack.getCount() == 1 && slot.mayPlace(stack))) {
+        if (player.getAbilities().instabuild && (stack.isEmpty() || stack.getCount() == 1 && slot.mayPlace(stack))) {
             slot.setByPlayer(stack);
             player.inventoryMenu.setRemoteSlot(index, stack);
             player.inventoryMenu.broadcastChanges();

@@ -6,14 +6,12 @@ import dev.eliasnvx.catgirl.cosmetic.CosmeticInventory;
 import dev.eliasnvx.catgirl.cosmetic.CosmeticsManager;
 import dev.eliasnvx.catgirl.registry.CatgirlComponents;
 import dev.eliasnvx.catgirl.registry.CatgirlTags;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.DyeableLeatherItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,9 +20,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Per-player render data, attached to the player's render state during extraction. One instance per entity is
- * reused across frames: the worn list is rebuilt only when the (immutable) inventory snapshot changes, and the
- * smoothed motion values are updated in place, so extraction does not allocate.
+ * Per-player render data, captured by the cosmetic layer each frame. One instance per entity is reused across frames:
+ * the worn list is rebuilt only when the (immutable) inventory snapshot changes, and the smoothed motion values are
+ * updated in place, so capturing does not allocate.
  */
 public final class CosmeticRenderData {
 
@@ -61,16 +59,13 @@ public final class CosmeticRenderData {
         this.phase = (entityId * GOLDEN_ANGLE) % Mth.TWO_PI;
     }
 
-    /** Called from the render state extraction mixin. Returns null if nothing is worn. */
-    public static @Nullable CosmeticRenderData capture(Entity entity, AvatarRenderState state) {
-        if (!(entity instanceof Player player)) {
-            return null;
-        }
+    /** Called from the cosmetic layer once per frame per player. Returns null if nothing is worn. */
+    public static @Nullable CosmeticRenderData capture(Player player, PlayerPose state) {
         CosmeticInventory inventory = CosmeticsManager.worn(player);
         if (inventory.isEmpty()) {
             return null;
         }
-        CosmeticRenderData data = CACHE.computeIfAbsent(entity, e -> new CosmeticRenderData(e.getId()));
+        CosmeticRenderData data = CACHE.computeIfAbsent(player, e -> new CosmeticRenderData(e.getId()));
         if (data.source != inventory) {
             data.rebuild(inventory);
         }
@@ -79,9 +74,8 @@ public final class CosmeticRenderData {
     }
 
     /** The data a model's {@code setupAnim} reads; never null. */
-    public static CosmeticRenderData of(AvatarRenderState state) {
-        CosmeticRenderData data = ((CosmeticRenderStateAccess) state).catgirl$getCosmetics();
-        return data == null ? STILL : data;
+    public static CosmeticRenderData of(PlayerPose state) {
+        return state.cosmetics;
     }
 
     private void rebuild(CosmeticInventory inventory) {
@@ -89,7 +83,7 @@ public final class CosmeticRenderData {
         for (CatSlot slot : CatSlot.values()) {
             ItemStack stack = inventory.get(slot);
             if (!stack.isEmpty()) {
-                list.add(new Worn(slot, stack.getItem(), stack.getOrDefault(CatgirlComponents.COAT.get(), Coat.DEFAULT),
+                list.add(new Worn(slot, stack.getItem(), CatgirlComponents.COAT.getOrDefault(stack, Coat.DEFAULT),
                         dyeOf(stack)));
             }
         }
@@ -98,13 +92,13 @@ public final class CosmeticRenderData {
         this.source = inventory;
     }
 
-    /** 24-bit dyed color, or -1 if undyed. The component's value carries alpha, so it can't be compared with -1 itself. */
+    /** 24-bit dyed color, or -1 if undyed. */
     private static int dyeOf(ItemStack stack) {
-        DyedItemColor dyed = stack.get(DataComponents.DYED_COLOR);
-        return dyed == null ? -1 : dyed.rgb() & 0xFFFFFF;
+        return stack.getItem() instanceof DyeableLeatherItem dyeable && dyeable.hasCustomColor(stack)
+                ? dyeable.getColor(stack) & 0xFFFFFF : -1;
     }
 
-    private void updateMotion(AvatarRenderState state) {
+    private void updateMotion(PlayerPose state) {
         if (Float.isNaN(lastAge)) {
             lastAge = state.ageInTicks;
             lastBodyRot = state.bodyRot;

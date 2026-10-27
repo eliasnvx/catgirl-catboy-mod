@@ -29,7 +29,7 @@ public final class NineLives {
     public static void register() {
         EntityEvent.LIVING_DEATH.register((entity, source) -> {
             if (!(entity.level() instanceof ServerLevel level) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
-                    || !entity.hasEffect(CatgirlEffects.NINE_LIVES.asHolder())) {
+                    || !entity.hasEffect(CatgirlEffects.NINE_LIVES.get())) {
                 return EventResult.pass();
             }
             save(level, entity);
@@ -39,7 +39,7 @@ public final class NineLives {
 
     private static void save(ServerLevel level, LivingEntity entity) {
         entity.setHealth(SAVED_HEALTH);
-        entity.removeEffect(CatgirlEffects.NINE_LIVES.asHolder());
+        entity.removeEffect(CatgirlEffects.NINE_LIVES.get());
         entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_TICKS, 1));
         entity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, ABSORPTION_TICKS, 1));
         level.playSound(null, entity, SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 0.8F, 1.4F);

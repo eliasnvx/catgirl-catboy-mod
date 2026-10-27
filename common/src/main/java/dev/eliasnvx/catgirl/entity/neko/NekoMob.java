@@ -7,10 +7,12 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -20,8 +22,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,9 +35,16 @@ public abstract class NekoMob extends PathfinderMob implements CoatedNeko {
     private static final EntityDataAccessor<Integer> COAT = SynchedEntityData.defineId(NekoMob.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SKIN = SynchedEntityData.defineId(NekoMob.class, EntityDataSerializers.INT);
     private static final float VOICE_PITCH = 1.3F;
+    private static final float EYE_HEIGHT = 1.62F;
 
     protected NekoMob(EntityType<? extends NekoMob> type, Level level) {
         super(type, level);
+    }
+
+    /** A player's eye height (1.20.1 sets it on the entity, later versions on the type). */
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return EYE_HEIGHT;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -51,10 +59,10 @@ public abstract class NekoMob extends PathfinderMob implements CoatedNeko {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(COAT, Coat.DEFAULT.ordinal());
-        builder.define(SKIN, 0);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(COAT, Coat.DEFAULT.ordinal());
+        entityData.define(SKIN, 0);
     }
 
     @Override
@@ -81,25 +89,25 @@ public abstract class NekoMob extends PathfinderMob implements CoatedNeko {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
-                                        @Nullable SpawnGroupData data) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+                                        @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
         setCoat(randomCoat());
         setSkin(random.nextInt(SKINS));
-        return super.finalizeSpawn(level, difficulty, reason, data);
+        return super.finalizeSpawn(level, difficulty, reason, data, tag);
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public void addAdditionalSaveData(CompoundTag output) {
         super.addAdditionalSaveData(output);
         output.putString("catgirl_coat", coat().getSerializedName());
         output.putInt("catgirl_skin", skin());
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    public void readAdditionalSaveData(CompoundTag input) {
         super.readAdditionalSaveData(input);
-        setCoat(NekoData.coat(input.getStringOr("catgirl_coat", "")));
-        setSkin(input.getIntOr("catgirl_skin", 0));
+        setCoat(NekoData.coat(input.getString("catgirl_coat")));
+        setSkin(input.getInt("catgirl_skin"));
     }
 
     @Override

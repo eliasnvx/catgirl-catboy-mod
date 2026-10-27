@@ -12,7 +12,7 @@ import dev.eliasnvx.catgirl.set.CatSets;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -71,7 +71,7 @@ public final class CosmeticsPanel {
         return mouseX >= x && mouseX < x + CosmeticsLayout.WIDTH && mouseY >= y && mouseY < y + CosmeticsLayout.HEIGHT;
     }
 
-    public static void extractBackground(AbstractContainerScreen<?> screen, GuiGraphicsExtractor g) {
+    public static void extractBackground(AbstractContainerScreen<?> screen, GuiGraphics g) {
         if (!visible(screen)) {
             return;
         }
@@ -88,7 +88,7 @@ public final class CosmeticsPanel {
         int starY = y + CosmeticsLayout.setsY();
         for (CatSet set : SETS) {
             boolean worn = (mask & (1 << set.ordinal())) != 0;
-            g.text(font, STAR, starX(x, set) - font.width(STAR) / 2, starY, worn ? STAR_ON : STAR_OFF, worn);
+            g.drawString(font, STAR, starX(x, set) - font.width(STAR) / 2, starY, worn ? STAR_ON : STAR_OFF, worn);
         }
     }
 
@@ -97,16 +97,16 @@ public final class CosmeticsPanel {
     }
 
     /** Tooltips of empty cosmetic slots and of the set stars; true when one was shown. */
-    public static boolean tooltip(AbstractContainerScreen<?> screen, GuiGraphicsExtractor g, @Nullable Slot hovered,
+    public static boolean tooltip(AbstractContainerScreen<?> screen, GuiGraphics g, @Nullable Slot hovered,
                                   ItemStack carried, int mouseX, int mouseY) {
         if (!visible(screen) || !carried.isEmpty()) {
             return false;
         }
         Font font = Minecraft.getInstance().font;
         if (hovered != null && !hovered.hasItem() && hovered.container instanceof CosmeticsContainer) {
-            CatSlot slot = CosmeticSlot.slotOfIcon(hovered.getNoItemIcon());
+            CatSlot slot = CosmeticSlot.slotOfIcon(hovered.getNoItemIcon() == null ? null : hovered.getNoItemIcon().getSecond());
             if (slot != null) {
-                g.setTooltipForNextFrame(font, Component.translatable(slot.translationKey()), mouseX, mouseY);
+                g.renderTooltip(font, Component.translatable(slot.translationKey()), mouseX, mouseY);
                 return true;
             }
         }
@@ -119,7 +119,7 @@ public final class CosmeticsPanel {
         for (CatSet set : SETS) {
             int starX = starX(x, set);
             if (player != null && mouseX >= starX - STAR_STEP / 2 && mouseX < starX + STAR_STEP / 2) {
-                g.setComponentTooltipForNextFrame(font, setLines(player, set), mouseX, mouseY);
+                g.renderComponentTooltip(font, setLines(player, set), mouseX, mouseY);
                 return true;
             }
         }

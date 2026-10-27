@@ -1,12 +1,12 @@
 {
   "wants": {
     "id": "minecraft:emerald",
-    "count": 16
+    "Count": 16
   },
   "gives": {
     "id": "catgirl:cat_tail",
-    "count": 1,
-    "components": {
+    "Count": 1,
+    "tag": {
       "catgirl:coat": "siamese"
     }
   },

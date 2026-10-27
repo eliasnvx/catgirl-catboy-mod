@@ -6,16 +6,14 @@ dependencies {
     // Only for @Environment-style annotations; do NOT use other Fabric Loader classes in common
     compileOnly "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
 
-    implementation "dev.architectury:architectury:${rootProject.architectury_api_version}"
-    implementation "com.geckolib:geckolib-common-${rootProject.minecraft_version}:${rootProject.geckolib_version}"
+    modImplementation "dev.architectury:architectury:${rootProject.architectury_api_version}"
+    // 1.20.1 GeckoLib has no common artifact: compile against the Fabric jar (same API)
+    modCompileOnly "software.bernie.geckolib:geckolib-fabric-${rootProject.minecraft_version}:${rootProject.geckolib_version}"
 
     // Soft dependencies: only compat.jei / compat.jade touch them, and only JEI / Jade load those classes.
     // Jade's API is the same in both loader jars; the Fabric one is used to compile.
-    compileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
-    compileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}") { transitive false }
+    modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
+    modCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}") { transitive false }
 }
 
-// Optional local build additions
-if (file("tools.gradle").exists()) {
-    apply from: "tools.gradle"
-}
+// The Blockbench and character exports live on the 26.3 branch only: art is authored there.

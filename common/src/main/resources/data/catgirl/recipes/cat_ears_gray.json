@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "catgirl_cat_ears",
+  "pattern": [
+    "W W",
+    "SLS"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:gray_wool"
+    },
+    "S": {
+      "item": "minecraft:string"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "catgirl:cat_ears",
+    "nbt": {
+      "catgirl:coat": "gray"
+    }
+  }
+}

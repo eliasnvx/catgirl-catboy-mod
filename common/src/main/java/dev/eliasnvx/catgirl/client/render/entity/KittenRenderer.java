@@ -4,45 +4,39 @@ import dev.eliasnvx.catgirl.cosmetic.Coat;
 import dev.eliasnvx.catgirl.entity.neko.Kitten;
 import net.minecraft.client.renderer.entity.CatRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.CatRenderState;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.resources.ResourceLocation;
+import dev.eliasnvx.catgirl.client.render.ARGB32;
+import net.minecraft.world.entity.animal.Cat;
 
 /**
  * Kitten: the vanilla cat model and renderer (sitting, lying, collar), with the vanilla coat texture closest to its
  * mod coat (referenced, not shipped). Pink and Neon have no vanilla coat: the white one, tinted.
  */
-public final class KittenRenderer extends CatRenderer {
+public final class KittenRenderer extends CatRenderer implements ModelTint {
 
     private static final int NO_TINT = 0xFFFFFF;
+
+    /** The kitten being drawn: the tint is asked for in the middle of drawing it. Render thread only. */
+    private Coat drawing = Coat.DEFAULT;
 
     public KittenRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
-    public static final class State extends CatRenderState {
-        int tint = NO_TINT;
-    }
-
     @Override
-    public CatRenderState createRenderState() {
-        return new State();
-    }
-
-    @Override
-    public void extractRenderState(Cat cat, CatRenderState state, float partialTick) {
-        super.extractRenderState(cat, state, partialTick);
-        if (cat instanceof Kitten kitten && state instanceof State kittenState) {
-            Coat coat = kitten.coat();
-            state.texture = texture(vanillaCoat(coat), state.isBaby);
-            kittenState.tint = coat == Coat.PINK || coat == Coat.NEON ? coat.color(Coat.Part.MAIN) : NO_TINT;
+    public ResourceLocation getTextureLocation(Cat cat) {
+        if (cat instanceof Kitten kitten) {
+            drawing = kitten.coat();
+            return texture(vanillaCoat(drawing));
         }
+        drawing = Coat.DEFAULT;
+        return super.getTextureLocation(cat);
     }
 
     @Override
-    protected int getModelTint(CatRenderState state) {
-        return state instanceof State kitten ? ARGB.opaque(kitten.tint) : super.getModelTint(state);
+    public int catgirl$tint(int color) {
+        int tint = drawing == Coat.PINK || drawing == Coat.NEON ? drawing.color(Coat.Part.MAIN) : NO_TINT;
+        return ARGB32.multiply(color, ARGB32.opaque(tint));
     }
 
     private static String vanillaCoat(Coat coat) {
@@ -56,7 +50,7 @@ public final class KittenRenderer extends CatRenderer {
         };
     }
 
-    private static Identifier texture(String coat, boolean baby) {
-        return Identifier.withDefaultNamespace("textures/entity/cat/cat_" + coat + (baby ? "_baby" : "") + ".png");
+    private static ResourceLocation texture(String coat) {
+        return new ResourceLocation("textures/entity/cat/" + coat + ".png");
     }
 }

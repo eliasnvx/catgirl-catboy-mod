@@ -2,8 +2,6 @@ package dev.eliasnvx.catgirl.cosmetic;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 
 /**
  * Data component {@code catgirl:cosmetic}: the item is worn in this slot. A component, not an item class, so
@@ -15,6 +13,4 @@ public record Cosmetic(CatSlot slot) {
             CatSlot.CODEC.fieldOf("slot").forGetter(Cosmetic::slot)
     ).apply(i, Cosmetic::new));
 
-    public static final StreamCodec<ByteBuf, Cosmetic> STREAM_CODEC =
-            CatSlot.STREAM_CODEC.map(Cosmetic::new, Cosmetic::slot);
 }

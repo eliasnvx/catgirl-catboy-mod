@@ -1,0 +1,44 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/ears",
+      "sprite": "catgirl:container/slot/ears"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/face",
+      "sprite": "catgirl:container/slot/face"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/feet",
+      "sprite": "catgirl:container/slot/feet"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/hands",
+      "sprite": "catgirl:container/slot/hands"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/head",
+      "sprite": "catgirl:container/slot/head"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/legs",
+      "sprite": "catgirl:container/slot/legs"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/neck",
+      "sprite": "catgirl:container/slot/neck"
+    },
+    {
+      "type": "single",
+      "resource": "catgirl:gui/sprites/container/slot/tail",
+      "sprite": "catgirl:container/slot/tail"
+    }
+  ]
+}

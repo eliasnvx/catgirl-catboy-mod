@@ -1,0 +1,7 @@
+{
+  "order": 190,
+  "icon": "catgirl:container/slot/feet",
+  "validators": [
+    "curios:tag"
+  ]
+}

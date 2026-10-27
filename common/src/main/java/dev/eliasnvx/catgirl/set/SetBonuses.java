@@ -3,39 +3,35 @@ package dev.eliasnvx.catgirl.set;
 import dev.architectury.event.events.common.TickEvent;
 import dev.eliasnvx.catgirl.CatgirlAdvancements;
 import dev.eliasnvx.catgirl.CatgirlEvents;
-import dev.eliasnvx.catgirl.CatgirlMod;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Applies the set bonuses on the server: attribute modifiers while a set is worn, set advancements, House Cat's
+ * Applies the set bonuses on the server: set advancements, House Cat's
  * rest (its follow goal is added with the other cat goals in CatgirlEntities), Alley Cat's landings. Bonuses that need the client (quiet steps, the landing pose) read
- * {@link CatSets} there.
+ * {@link CatSets} there. Full Neko's jump and Alley Cat's safe fall come from LivingEntitySetBonusMixin on both sides
+ * (1.20.1 players have no jump strength or safe fall distance attribute).
  */
 public final class SetBonuses {
 
     private static final CatSet[] SETS = CatSet.values();
-    private static final Identifier JUMP_MODIFIER = CatgirlMod.id("full_neko_jump");
-    private static final Identifier SAFE_FALL_MODIFIER = CatgirlMod.id("alley_cat_safe_fall");
+    /** Falls this high never hurt in vanilla. */
+    private static final double VANILLA_SAFE_FALL = 3.0;
     private static final int LANDING_PARTICLES = 6;
     private static final double LANDING_SPREAD = 0.3;
     private static final float LANDING_VOLUME = 0.6F;
     private static final float LANDING_PITCH = 1.4F;
 
-    /** Per-player state; a respawned player is a new object and starts fresh (its attributes are fresh too). */
+    /** Per-player state; a respawned player is a new object and starts fresh. */
     private static final class State {
         int sets = -1;
         double fall;
@@ -70,10 +66,6 @@ public final class SetBonuses {
     }
 
     private static void changed(ServerPlayer player, int before, int after) {
-        modifier(player.getAttribute(Attributes.JUMP_STRENGTH), JUMP_MODIFIER, SetBalance.JUMP_BONUS,
-                (after & bit(CatSet.FULL_NEKO)) != 0);
-        modifier(player.getAttribute(Attributes.SAFE_FALL_DISTANCE), SAFE_FALL_MODIFIER, SetBalance.SAFE_FALL_BONUS,
-                (after & bit(CatSet.ALLEY_CAT)) != 0);
         if ((after & bit(CatSet.FULL_NEKO)) != 0) {
             CatgirlAdvancements.award(player, CatgirlAdvancements.FULL_NEKO);
         }
@@ -88,17 +80,6 @@ public final class SetBonuses {
 
     private static int bit(CatSet set) {
         return 1 << set.ordinal();
-    }
-
-    private static void modifier(AttributeInstance attribute, Identifier id, double amount, boolean on) {
-        if (attribute == null) {
-            return;
-        }
-        if (on && !attribute.hasModifier(id)) {
-            attribute.addTransientModifier(new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_VALUE));
-        } else if (!on && attribute.hasModifier(id)) {
-            attribute.removeModifier(id);
-        }
     }
 
     /**
@@ -143,8 +124,7 @@ public final class SetBonuses {
     }
 
     private static double safeFall(ServerPlayer player) {
-        AttributeInstance attribute = player.getAttribute(Attributes.SAFE_FALL_DISTANCE);
-        return attribute == null ? 0.0 : attribute.getValue();
+        return VANILLA_SAFE_FALL + SetBonusHooks.safeFallBonus(player);
     }
 
     static int landingPoseTicks() {

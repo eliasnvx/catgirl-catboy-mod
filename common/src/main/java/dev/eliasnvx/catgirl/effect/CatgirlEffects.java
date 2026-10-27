@@ -24,10 +24,13 @@ public final class CatgirlEffects {
     /** Well Rested: +15% walking speed for a minute. */
     private static final double WELL_RESTED_SPEED = 0.15;
 
-    /** Well Rested (cat bed nap). Pass {@code .asHolder()} to effect instances. */
+    /** Fixed id of Well Rested's speed modifier (1.20.1 identifies attribute modifiers by UUID). */
+    private static final String WELL_RESTED_MODIFIER = "67aef801-99a6-3b99-b57d-610c28f5340a";
+
+    /** Well Rested (cat bed nap). Effect instances take {@code WELL_RESTED.get()}. */
     public static final RegistrySupplier<MobEffect> WELL_RESTED = REGISTER.register("well_rested", () ->
             new Simple(MobEffectCategory.BENEFICIAL, WELL_RESTED_COLOR).addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    CatgirlMod.id("effect.well_rested"), WELL_RESTED_SPEED, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                    WELL_RESTED_MODIFIER, WELL_RESTED_SPEED, AttributeModifier.Operation.MULTIPLY_TOTAL));
     /** Nine Lives (Cat Spirit): the next death is cancelled once, like a totem (NineLives). */
     public static final RegistrySupplier<MobEffect> NINE_LIVES = REGISTER.register("nine_lives",
             () -> new Simple(MobEffectCategory.BENEFICIAL, NINE_LIVES_COLOR));
@@ -45,7 +48,7 @@ public final class CatgirlEffects {
 
     /**
      * Random tumbles: every couple of seconds a player under catnip may tumble a step to a random side with
-     * a little hop. Movement is client-driven for players, so the push is sent to the client (needsSync).
+     * a little hop. Movement is client-driven for players, so the push is sent to the client (hurtMarked).
      */
     static final class Catnip extends MobEffect {
         private static final int ROLL_INTERVAL = 40;
@@ -59,21 +62,23 @@ public final class CatgirlEffects {
         }
 
         @Override
-        public boolean shouldApplyEffectTickThisTick(int remainingDuration, int amplifier) {
+        public boolean isDurationEffectTick(int remainingDuration, int amplifier) {
             return remainingDuration % ROLL_INTERVAL == 0;
         }
 
         @Override
-        public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
+        public void applyEffectTick(LivingEntity entity, int amplifier) {
+            if (!(entity.level() instanceof ServerLevel level)) {
+                return;
+            }
             RandomSource random = entity.getRandom();
             if (entity instanceof Player player && player.onGround() && !player.isPassenger() && random.nextFloat() < ROLL_CHANCE) {
                 double angle = random.nextDouble() * Math.PI * 2;
                 player.push(Math.cos(angle) * ROLL_PUSH, ROLL_HOP, Math.sin(angle) * ROLL_PUSH);
-                player.needsSync = true;
+                player.hurtMarked = true;
                 level.sendParticles(ParticleTypes.HAPPY_VILLAGER, player.getX(), player.getY() + 0.3, player.getZ(),
                         ROLL_PARTICLES, 0.3, 0.1, 0.3, 0.0);
             }
-            return true;
         }
     }
 }

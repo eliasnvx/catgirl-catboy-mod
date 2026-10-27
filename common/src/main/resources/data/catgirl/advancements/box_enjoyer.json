@@ -1,0 +1,28 @@
+{
+  "parent": "catgirl:root",
+  "display": {
+    "icon": {
+      "item": "catgirl:cardboard_box"
+    },
+    "title": {
+      "translate": "advancements.catgirl.box_enjoyer.title"
+    },
+    "description": {
+      "translate": "advancements.catgirl.box_enjoyer.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

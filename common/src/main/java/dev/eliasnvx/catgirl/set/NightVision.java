@@ -3,10 +3,10 @@ package dev.eliasnvx.catgirl.set;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.networking.NetworkManager;
 import dev.eliasnvx.catgirl.CatgirlMod;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.eliasnvx.catgirl.network.CatgirlPacket;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -37,15 +37,15 @@ public final class NightVision {
             return;
         }
         if (!CatSets.has(player, CatSet.FULL_NEKO)) {
-            player.sendOverlayMessage(Component.translatable("message.catgirl.night_vision.needs_set",
-                    Component.translatable(CatSet.FULL_NEKO.translationKey())));
+            player.displayClientMessage(Component.translatable("message.catgirl.night_vision.needs_set",
+                    Component.translatable(CatSet.FULL_NEKO.translationKey())), true);
             return;
         }
         long now = player.level().getGameTime();
         Long last = LAST_USE.get(player.getUUID());
         if (last != null && now - last < SetBalance.NIGHT_VISION_COOLDOWN_TICKS) {
             long seconds = (SetBalance.NIGHT_VISION_COOLDOWN_TICKS - (now - last) + TICKS_PER_SECOND - 1) / TICKS_PER_SECOND;
-            player.sendOverlayMessage(Component.translatable("message.catgirl.night_vision.cooldown", seconds));
+            player.displayClientMessage(Component.translatable("message.catgirl.night_vision.cooldown", seconds), true);
             return;
         }
         LAST_USE.put(player.getUUID(), now);
@@ -54,15 +54,18 @@ public final class NightVision {
     }
 
     /** C2S: the night vision key was pressed. The server checks the set and the cooldown. */
-    public record Payload() implements CustomPacketPayload {
+    public record Payload() implements CatgirlPacket {
 
         public static final Payload INSTANCE = new Payload();
-        public static final Type<Payload> TYPE = new Type<>(CatgirlMod.id("night_vision"));
-        public static final StreamCodec<ByteBuf, Payload> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+        public static final ResourceLocation ID = CatgirlMod.id("night_vision");
 
         @Override
-        public Type<Payload> type() {
-            return TYPE;
+        public ResourceLocation id() {
+            return ID;
+        }
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
         }
 
         public static void handle(Payload payload, NetworkManager.PacketContext context) {

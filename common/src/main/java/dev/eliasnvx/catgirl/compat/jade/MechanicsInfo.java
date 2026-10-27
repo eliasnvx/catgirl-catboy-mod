@@ -6,7 +6,7 @@ import dev.eliasnvx.catgirl.block.CatBedBlock;
 import dev.eliasnvx.catgirl.block.CatnipBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -17,7 +17,7 @@ import snownee.jade.api.config.IPluginConfig;
 public enum MechanicsInfo implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final Identifier UID = CatgirlMod.id("mechanics");
+    private static final ResourceLocation UID = CatgirlMod.id("mechanics");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
@@ -35,7 +35,7 @@ public enum MechanicsInfo implements IBlockComponentProvider {
     }
 
     @Override
-    public Identifier getUid() {
+    public ResourceLocation getUid() {
         return UID;
     }
 }
