@@ -28,7 +28,9 @@ Catgirl or catboy is up to you: every piece fits slim and classic skins the same
 Fur pieces come in 8 coats. Six you craft (the wool picks the color), Siamese and Calico only come from the nekos.
 Collars, bows, headphones, whiskers and blush take any dye.
 
-<p align="center"><img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/hero.jpg" alt="A catgirl in a cherry grove"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/hero.jpg" alt="A catgirl in a cherry grove" width="49%"> <img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/hero_catboy.jpg" alt="A catboy in a cherry grove" width="49%"></p>
+
+<p align="center"><img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/first_person.jpg" alt="Paw mittens in first person" width="49%"> <img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/inventory.jpg" alt="The cosmetic slots next to the inventory" width="49%"></p>
 
 ## Sets
 
@@ -36,6 +38,8 @@ Collars, bows, headphones, whiskers and blush take any dye.
   vision for 10 seconds on **N**
 - **House Cat** (ears, collar): cats follow you around, and a cat within 16 blocks keeps phantoms away
 - **Alley Cat** (tail, slippers, leg warmers): no fall damage from up to 10 blocks, and you land on all fours
+
+<p align="center"><img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/sunset.jpg" alt="Full Neko at sunset"></p>
 
 ## Meow
 
@@ -51,7 +55,7 @@ Press **Z**. You meow, notes float up, and the cats around you answer.
 - **Yarn ball:** throw it, cats chase it
 - **Snacks:** tuna onigiri, fish sticks, a saucer of milk, cat food, catnip cookies, takoyaki, bubble tea, canned tuna
 
-<p align="center"><img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/catnip.jpg" alt="Catnip and cats with the zoomies"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/box.jpg" alt="Hiding in a cardboard box" width="49%"> <img src="https://raw.githubusercontent.com/eliasnvx/catgirl-catboy-mod/26.3-dev/docs/images/catnip.jpg" alt="Catnip and cats with the zoomies" width="49%"></p>
 
 ## Nekos
 
