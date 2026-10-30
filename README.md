@@ -3,9 +3,10 @@
 </p>
 
 <p align="center">
-  <a href="https://www.minecraft.net/"><img src="https://img.shields.io/badge/Minecraft-26.3-62B47A?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 26.3"></a>
+  <a href="https://www.minecraft.net/"><img src="https://img.shields.io/badge/Minecraft-26.3%20%7C%201.21.1%20%7C%201.20.1-62B47A?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 26.3, 1.21.1, 1.20.1"></a>
   <a href="https://fabricmc.net/"><img src="https://img.shields.io/badge/Fabric-0.19.5+-DBD0B4?style=for-the-badge" alt="Fabric"></a>
-  <a href="https://neoforged.net/"><img src="https://img.shields.io/badge/NeoForge-26.3-E68A00?style=for-the-badge" alt="NeoForge"></a>
+  <a href="https://neoforged.net/"><img src="https://img.shields.io/badge/NeoForge-26.3%20%7C%201.21.1-E68A00?style=for-the-badge" alt="NeoForge 26.3, 1.21.1"></a>
+  <a href="https://files.minecraftforge.net/"><img src="https://img.shields.io/badge/Forge-1.20.1-5A6E8C?style=for-the-badge" alt="Forge 1.20.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-53C2A9?style=for-the-badge" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/Version-0.1.0-F7A1B8?style=for-the-badge" alt="Version 0.1.0">
 </p>
@@ -143,11 +144,13 @@ Advancements to chase: *First Meow*, *Herding Cats*, *Full Neko*, *Nine Lives*, 
 
 ## Install
 
-1. Minecraft **26.3** with **Fabric** (plus Fabric API) or **NeoForge**.
+1. Minecraft **26.3** or **1.21.1** with **Fabric** (plus Fabric API) or **NeoForge**, or Minecraft **1.20.1** with
+   **Fabric** (plus Fabric API) or **Forge**.
 2. Also needed: [Architectury API](https://modrinth.com/mod/architectury-api) and [GeckoLib](https://modrinth.com/mod/geckolib).
 3. Put the mod on both the client and the server.
 
-Works with **JEI** (info pages for every item, coats as separate entries), **Jade**, and **Curios** on NeoForge.
+Works with **JEI** (info pages for every item, coats as separate entries) and **Jade**, and with **Curios** on NeoForge
+and Forge.
 
 <p align="center"><img src="docs/images/header_faq.png" alt="FAQ"></p>
 
@@ -164,7 +167,8 @@ the head pieces (headphones, bows, headband), and the ears poke out above it.
 **Can a modpack change things?** Recipes are plain JSON, and the item tags (`#catgirl:ears`, `#catgirl:tails` and
 the rest) decide what counts for each set.
 
-**Older Minecraft versions?** 1.21.1 and 1.20.1 are planned.
+**Older Minecraft versions?** Besides 26.3 there are builds for 1.21.1 (Fabric, NeoForge) and 1.20.1 (Fabric,
+Forge).
 
 ---
 

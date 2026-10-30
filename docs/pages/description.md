@@ -68,9 +68,9 @@ Press **Z**. You meow, notes float up, and the cats around you answer.
 
 ## Good to know
 
+- Minecraft 26.3 and 1.21.1 on Fabric and NeoForge, 1.20.1 on Fabric and Forge.
 - Needs [Architectury API](https://modrinth.com/mod/architectury-api) and [GeckoLib](https://modrinth.com/mod/geckolib) (and Fabric API on Fabric).
 - Install it on both the client and the server.
-- Works with JEI, Jade, and Curios on NeoForge.
-- 1.21.1 and 1.20.1 are planned.
+- Works with JEI and Jade, and with Curios on NeoForge and Forge.
 
 Source, issues and the full feature list: [GitHub](https://github.com/eliasnvx/catgirl-catboy-mod). MIT license, so it's fine in any modpack.
